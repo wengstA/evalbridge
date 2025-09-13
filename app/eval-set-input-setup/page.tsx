@@ -333,9 +333,12 @@ Ready to dive into the test strategy? 🚀`,
     },
   ])
   const [chatInput, setChatInput] = useState("")
+  const [splitterWidth, setSplitterWidth] = useState(448) // 28rem = 448px
+  const [isDragging, setIsDragging] = useState(false)
   const router = useRouter()
   const { navigateToStep } = useWorkflow()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const chatInputRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -343,6 +346,49 @@ Ready to dive into the test strategy? 🚀`,
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`
     }
   }, [chatInput])
+
+  // Splitter drag handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true)
+    e.preventDefault()
+  }
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isDragging) return
+    
+    const newWidth = e.clientX
+    const minWidth = 300
+    const maxWidth = window.innerWidth * 0.6
+    
+    if (newWidth >= minWidth && newWidth <= maxWidth) {
+      setSplitterWidth(newWidth)
+    }
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+  }
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+      document.body.style.cursor = 'col-resize'
+      document.body.style.userSelect = 'none'
+    } else {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+  }, [isDragging])
 
   const handleSendMessage = () => {
     if (!chatInput.trim()) return
@@ -435,7 +481,10 @@ Which capability dimension would you like to focus on, and what specific changes
 
         <div className="flex flex-1 overflow-hidden">
           {/* Chat Interface */}
-          <div className="w-96 bg-white border-r border-slate-200 flex flex-col shadow-lg">
+          <div 
+            className="bg-white border-r border-slate-200 flex flex-col shadow-lg"
+            style={{ width: `${splitterWidth}px`, minWidth: '300px' }}
+          >
             <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-100 rounded-lg">
@@ -494,6 +543,18 @@ Which capability dimension would you like to focus on, and what specific changes
                   <Send className="h-4 w-4" />
                 </button>
               </div>
+            </div>
+          </div>
+
+          {/* Splitter Drag Handle */}
+          <div
+            className={`w-1 bg-slate-300 hover:bg-blue-400 cursor-col-resize transition-colors duration-200 flex-shrink-0 ${
+              isDragging ? 'bg-blue-500' : ''
+            }`}
+            onMouseDown={handleMouseDown}
+          >
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="w-0.5 h-8 bg-slate-400 rounded-full"></div>
             </div>
           </div>
 
