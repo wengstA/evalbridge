@@ -60,41 +60,55 @@ interface SelectedMetricInfo {
 const mockCapabilityDimensions: ICapabilityDimension[] = [
   {
     id: "identity-fidelity",
-    icon: "👤",
+    icon: "🎭",
     title: "Capturing Likeness & Appeal",
     description:
-      "This capability evaluates the core artistic challenge: accurately capturing and refining the user's core facial features and 'essence' *while* applying the Q-version stylization. This is not just mechanical feature mapping; it requires the skill of a professional caricature artist to amplify the user's recognizable traits in a way that is both aesthetically pleasing and flattering, avoiding an uncanny or generic result.",
+      "This capability evaluates the model's ability to capture the **core identity and essence** of the input subject while maintaining artistic appeal. It measures how well the generated 3D model represents the person's unique facial features, expressions, and overall character.",
     userValue:
-      "This defines the product's **Core Emotional Value**. The user demands a unique, 'Q-ified' version of *themselves*, not a generic doll. This capability determines the emotional resonance ('Wow, that's me!') that drives the product's entire value.",
+      "This is the **Primary Value Proposition**. Users want a 3D model that looks like *them* or their loved ones, not a generic character. This drives user satisfaction, sharing, and repeat usage.",
     quantitativeMetrics: [
       {
         metricId: "quant-1-1",
-        metricName: "Facial Identity Vector Similarity",
-        tool: "Pre-trained facial recognition network (e.g., ArcFace)",
+        metricName: "Facial Landmark Accuracy",
+        tool: "MediaPipe Face Mesh + Custom Analysis",
         description:
-          "Measures how well the generated 3D face maintains the user's unique facial identity by comparing embedding vectors from the input photo and rendered output.",
+          "Measures the accuracy of key facial landmarks (eyes, nose, mouth) compared to the input image using geometric distance calculations.",
+      },
+      {
+        metricId: "quant-1-2",
+        metricName: "Identity Preservation Score",
+        tool: "Face Recognition API (FaceNet/ArcFace)",
+        description:
+          "Uses deep learning face recognition to calculate similarity scores between input and generated 3D model renders.",
+      },
+      {
+        metricId: "quant-1-3",
+        metricName: "Expression Consistency",
+        tool: "Facial Action Coding System (FACS)",
+        description:
+          "Analyzes facial expressions in the generated model to ensure they match the emotional tone of the input image.",
       },
     ],
     qualitativeMetrics: [
       {
         metricId: "qual-1-1",
-        itemName: 'Likeness & Essence Capture (The "Soul" Metric)',
+        itemName: "Overall Likeness Quality",
         perfectScore:
-          "Instantly recognizable. The model captures the user's unique 'essence'—their specific smile, the way their eyes are shaped, or their core expression. It feels exactly like them.",
+          "The generated model is immediately recognizable as the input person. Friends and family would instantly say 'That's definitely [Name]!'",
         acceptableScore:
-          "Recognizable, but generic. It matches the user's 'feature coordinates' (passing quantitative) but has lost their unique personality or 'soul' in the stylization.",
+          "The model captures the general appearance and some key features, but may miss subtle details or have minor inaccuracies.",
         failScore:
-          'Unrecognizable. Even if the quantitative test *barely* passes, a human expert would not identify this as the same person. The "essence" is completely lost.',
+          "The model looks like a generic character or a completely different person. No recognizable features from the input.",
       },
       {
         metricId: "qual-1-2",
-        itemName: "Artistic Appeal (Anti-Uncanny Valley)",
+        itemName: "Artistic Appeal & Stylization",
         perfectScore:
-          "The resulting stylized face is artistically excellent. It is 'cute,' appealing, and flattering. The Q-version translation has enhanced the user's appeal.",
+          "The model maintains perfect likeness while adding beautiful artistic elements (lighting, composition, style) that enhance the overall appeal.",
         acceptableScore:
-          "The face is 'fine.' It's not ugly or creepy, but it's also not particularly cute or appealing. It feels 'robotic' or 'doll-like' in a neutral way.",
+          "The model looks good but may prioritize accuracy over artistic appeal, or vice versa, resulting in a trade-off.",
         failScore:
-          "The model falls directly into the **uncanny valley**. The features are distorted, the expression is 'creepy,' or the result is aesthetically ugly.",
+          "The model is either completely unartistic (bland, boring) or so stylized that it loses all resemblance to the input.",
       },
     ],
   },
@@ -103,101 +117,116 @@ const mockCapabilityDimensions: ICapabilityDimension[] = [
     icon: "🎨",
     title: "Unified Art Style",
     description:
-      "This capability evaluates the model's aesthetic discipline as a '3D Stylist.' It must strictly adhere to a unified 'Q-version art language' across *every single component* of the model. This includes a strong, readable **Silhouette**, coherent **Form Language** (e.g., rounded, appealing shapes), and correct proportions.",
+      "This capability evaluates the model's consistency in **artistic style and form language**. The generated 3D models should maintain a cohesive visual style that aligns with the intended aesthetic (realistic, stylized, cartoon, etc.) and brand guidelines.",
     userValue:
-      "This defines the product's **Artistic Integrity**. A stylistically unified work is a 'collectible figurine'; a mismatched work is just a 'model.' The user can intuitively sense which is more 'professional' and complete, which dictates its perceived quality.",
+      "This ensures **Brand Consistency and Professional Quality**. Users expect a polished, cohesive experience that reflects well on the platform and meets their aesthetic expectations.",
     quantitativeMetrics: [
       {
         metricId: "quant-2-1",
-        metricName: "Global Proportion Adherence",
-        tool: "Geometric Bounding Box analysis",
+        metricName: "Style Consistency Score",
+        tool: "Style Transfer Analysis + Neural Style Matching",
         description:
-          "Ensures the model follows Q-version proportional guidelines by measuring head-to-body ratios and overall dimensional consistency.",
+          "Compares the artistic style of generated models against reference style samples to ensure consistency across different inputs.",
       },
       {
         metricId: "quant-2-2",
-        metricName: "Detail Frequency Analysis (Heuristic)",
-        tool: "Spectral analysis (FFT) on generated Normal Maps",
+        metricName: "Color Palette Adherence",
+        tool: "Color Histogram Analysis + Palette Matching",
         description:
-          "Detects unwanted realistic detail by analyzing high-frequency content in normal maps, ensuring clean stylized forms rather than noisy realistic textures.",
+          "Measures how well the generated models adhere to the defined color palette and avoid color inconsistencies.",
+      },
+      {
+        metricId: "quant-2-3",
+        metricName: "Proportion Consistency",
+        tool: "3D Geometric Analysis + Golden Ratio Calculations",
+        description:
+          "Ensures that body proportions and facial features maintain consistent ratios across different generated models.",
       },
     ],
     qualitativeMetrics: [
       {
         metricId: "qual-2-1",
-        itemName: "Silhouette Readability & Strength",
+        itemName: "Visual Style Coherence",
         perfectScore:
-          "The model's overall shape (silhouette) is clean, strong, and instantly readable. The pose, hair, and clothing create an appealing and dynamic shape from all major angles.",
+          "All generated models share a perfectly consistent visual style. They look like they belong to the same artistic universe or brand family.",
         acceptableScore:
-          "The silhouette is 'okay.' It's not confusing, but it's not strong. It may look 'boring,' 'stiff,' or slightly unbalanced.",
+          "Models are generally consistent but may have minor style variations that don't significantly impact the overall experience.",
         failScore:
-          "The silhouette is a 'mess.' It's confusing, unbalanced, has many distracting noisy parts, or forms tangent shapes that are visually awkward.",
+          "Models have wildly different styles - some realistic, some cartoon, some abstract - creating a jarring, unprofessional experience.",
       },
       {
         metricId: "qual-2-2",
-        itemName: "Internal Form Language Cohesion",
+        itemName: "Brand Alignment",
         perfectScore:
-          "Every detail serves the style. Clothing folds are simplified into clean, pleasing forms. Hair is sculpted in 'clumps' that match the Q-style. All internal shapes feel like they belong to the same 'artistic kit.'",
+          "The generated models perfectly align with brand guidelines, target audience expectations, and the intended market positioning.",
         acceptableScore:
-          "A slight mix of styles. Proportions are correct, but some details are inconsistent (e.g., hyper-realistic fabric wrinkles on a cartoon body, or realistic hair strands).",
+          "Models mostly align with brand guidelines but may occasionally miss the mark on specific aesthetic requirements.",
         failScore:
-          "A 'Frankenstein' model. It's a chaotic mix of realistic and stylized parts (e.g., realistic hands on a cartoon body). The internal forms have no consistent art direction.",
+          "Models completely miss the brand aesthetic or target audience, creating a disconnect between user expectations and delivered results.",
       },
     ],
   },
   {
     id: "material-expression",
-    icon: "💎",
-    title: "Material Expression & Color Decoupling",
+    icon: "✨",
+    title: "Material Expression",
     description:
-      "This capability evaluates the model's ability to differentiate and generate *style-appropriate* materials. It must de-light the input photo (decouple lighting from albedo) and generate a full set of PBR maps (Albedo, Roughness, Normals) that fit the figurine aesthetic.",
+      "This capability evaluates the model's ability to render **realistic materials and textures**. This includes skin texture, hair quality, clothing materials, and overall surface properties that make the 3D model look lifelike and appealing.",
     userValue:
-      "This dictates the **Perceived Value (Premium Feel)**. Correct material expression is the definitive line between a 'high-end collectible' and a 'cheap plastic toy.' Clean, de-lit materials are also the prerequisite for all downstream uses (like AR or dynamic lighting).",
+      "This drives **User Engagement and Perceived Quality**. Realistic materials make users more likely to interact with, share, and use the 3D models in various applications.",
     quantitativeMetrics: [
       {
         metricId: "quant-3-1",
-        metricName: "Baked-Lighting Detection",
-        tool: "Image analysis (variance calculation) on Albedo texture map",
+        metricName: "Texture Detail Preservation",
+        tool: "Texture Analysis + Detail Extraction Algorithms",
         description:
-          "Verifies that lighting information has been properly separated from material colors by detecting unwanted shadows or highlights baked into albedo textures.",
+          "Measures the level of detail preserved in textures, including skin pores, fabric patterns, and surface irregularities.",
       },
       {
         metricId: "quant-3-2",
-        metricName: "PBR Map Generation Check",
-        tool: "Variance check on Normal and Roughness maps",
+        metricName: "Material Realism Score",
+        tool: "Physically-Based Rendering (PBR) Analysis",
         description:
-          "Confirms that the model generates proper physically-based rendering maps with meaningful variation rather than flat, uniform textures.",
+          "Evaluates how well materials follow physically-based rendering principles for realistic light interaction and surface properties.",
+      },
+      {
+        metricId: "quant-3-3",
+        metricName: "Subsurface Scattering Accuracy",
+        tool: "Light Transport Simulation + Skin Analysis",
+        description:
+          "Measures the accuracy of subsurface scattering effects, particularly important for realistic skin and organic materials.",
       },
     ],
     qualitativeMetrics: [
       {
         metricId: "qual-3-1",
-        itemName: "Material Differentiation & Logic",
+        itemName: "Skin Texture Realism",
         perfectScore:
-          "I can instantly and clearly differentiate all materials. Skin looks like skin, cloth like cloth, metal like metal. The material choices feel logical and intentional.",
+          "Skin looks incredibly realistic with proper texture, pores, and natural variations. It has the right amount of detail without being uncanny.",
         acceptableScore:
-          "I can mostly tell materials apart, but some are ambiguous (e.g., hair looks like plastic, cloth looks like paper).",
-        failScore: "The entire model looks like it's made of one homogenous material (usually 'cheap plastic').",
+          "Skin looks good but may be slightly too smooth or too detailed, creating a minor artificial appearance.",
+        failScore:
+          "Skin looks completely artificial - either too smooth like plastic, or overly detailed like a medical model, creating an uncanny valley effect.",
       },
       {
         metricId: "qual-3-2",
-        itemName: "Material Quality & Appeal",
+        itemName: "Material Authenticity",
         perfectScore:
-          "The materials look 'premium.' Skin has a beautiful, soft, painted-resin feel (simulated SSS). Clothing normals are crisp and well-stylized. It looks like a high-end physical collectible.",
+          "All materials (hair, clothing, accessories) look authentic and realistic. Hair has proper flow and texture, fabrics look like real materials.",
         acceptableScore:
-          "The materials are 'passable.' They look like a standard, unpolished 3D asset. Skin is opaque, normals are blurry. It does the job but lacks any 'wow' factor.",
+          "Materials look mostly realistic but may have minor issues with texture or appearance that don't significantly impact the overall quality.",
         failScore:
-          "Materials fail the quantitative test (baked-in lighting) OR look cheap, flat, overly glossy, or blurry.",
+          "Materials look fake or poorly rendered. Hair looks like a solid block, fabrics look painted on, or materials have unrealistic properties.",
       },
       {
         metricId: "qual-3-3",
-        itemName: "Color Fidelity & Harmony",
+        itemName: "Lighting & Shading Quality",
         perfectScore:
-          "Colors are both faithful to the source photo *and* artistically harmonious. The skin tone is accurate and vibrant. All clothing colors work well together within the Q-style palette.",
+          "Lighting and shading are perfect, creating natural-looking depth and dimension. Shadows and highlights enhance the realism.",
         acceptableScore:
-          "Colors are technically correct (sampled from the photo) but look 'off.' Skin tone might be accurate but looks 'pale,' 'dead,' or 'washed out.'",
+          "Lighting is generally good but may have minor issues with shadow placement or highlight intensity.",
         failScore:
-          "Colors are wrong. Skin tone is completely incorrect (e.g., green tint), or colors are wildly over-saturated or clipped.",
+          "Lighting is poor, creating flat-looking models or unrealistic shadows that detract from the overall quality.",
       },
     ],
   },
@@ -287,7 +316,7 @@ const renderMarkdown = (text: string) => {
   })
 }
 
-export default function EvalPlanning() {
+export default function RequirementsBreakdown() {
   const [capabilityDimensions, setCapabilityDimensions] = useState<ICapabilityDimension[]>(mockCapabilityDimensions)
   const [selectedMetric, setSelectedMetric] = useState<SelectedMetricInfo | null>(null)
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
@@ -314,7 +343,7 @@ export default function EvalPlanning() {
 
       await new Promise((resolve) => setTimeout(resolve, 100))
 
-      console.log("[v0] Attempting to navigate to evaluation-overview")
+      console.log("[v0] Attempting to navigate to eval-planning-overview")
       router.push("/eval-planning/overview")
       console.log("[v0] Navigation call completed")
     } catch (error) {
@@ -405,8 +434,8 @@ export default function EvalPlanning() {
         <header className="bg-white border-b border-slate-200 px-8 py-6 sticky top-0 z-10 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="font-bold text-slate-900 font-space-grotesk text-2xl">Requirements Analysis</h1>
-              <p className="text-slate-600 mt-1 text-lg">Define and analyze your evaluation requirements</p>
+              <h1 className="font-bold text-slate-900 font-space-grotesk text-2xl">Requirements Breakdown</h1>
+              <p className="text-slate-600 mt-1 text-lg">Configure detailed capability dimensions and evaluation metrics</p>
             </div>
             <ProjectSelector />
           </div>
@@ -671,7 +700,7 @@ export default function EvalPlanning() {
                         onClick={handleConfirmConfiguration}
                         className="hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors bg-slate-700"
                       >
-                        Continue to Requirements Breakdown →
+                        Continue to Plan Overview →
                       </button>
                     </div>
                   </div>

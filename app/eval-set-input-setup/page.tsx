@@ -4,12 +4,13 @@ import { useRouter } from "next/navigation"
 import { Sidebar } from "@/components/sidebar"
 import { ProjectSelector } from "@/components/project-selector"
 import { Slider } from "@/components/ui/slider"
-import { Send, Bot, User, ArrowLeft, CheckCircle } from "lucide-react"
+import { Send, Bot, User, ArrowLeft, CheckCircle, Loader2 } from "lucide-react"
 import { useWorkflow } from "@/contexts/workflow-context"
 
 interface TestCase {
   id: string
   tier: "Easy" | "Medium" | "Hard"
+  name: string
   rationale: string
   showcases: Array<{
     inputType: string
@@ -35,7 +36,7 @@ interface ChatMessage {
 const mockTestPlans: CapabilityTestPlan[] = [
   {
     id: "identity-fidelity",
-    name: "Identity Fidelity",
+    name: "Capturing Likeness & Appeal",
     icon: "👤",
     testCases: [
       {
@@ -104,7 +105,7 @@ const mockTestPlans: CapabilityTestPlan[] = [
   },
   {
     id: "form-language",
-    name: "Form Language",
+    name: "Unified Art Style",
     icon: "🎨",
     testCases: [
       {
@@ -223,7 +224,7 @@ const mockTestPlans: CapabilityTestPlan[] = [
   },
   {
     id: "technical-integrity",
-    name: "Technical Integrity",
+    name: "Technical Quality",
     icon: "🔧",
     testCases: [
       {
@@ -306,6 +307,7 @@ export default function EvalSetInputSetup() {
     "identity-fidelity": { Easy: 5, Medium: 3, Hard: 2 },
     "material-expression": { Easy: 5, Medium: 3, Hard: 2 },
   })
+  const [isGenerating, setIsGenerating] = useState(false)
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
       id: "initial",
@@ -375,9 +377,15 @@ Which capability dimension would you like to focus on, and what specific changes
     navigateToStep("eval-planning-overview")
   }
 
-  const handleApproveTestSet = () => {
-    console.log("[v0] Test set approved, navigating to next step")
+  const handleApproveTestSet = async () => {
+    setIsGenerating(true)
+    console.log("[v0] Eval set approved, generating evaluation...")
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    
     navigateToStep("model-evaluation")
+    setIsGenerating(false)
   }
 
   const getTierColor = (tier: string) => {
@@ -614,10 +622,20 @@ Which capability dimension would you like to focus on, and what specific changes
 
                 <button
                   onClick={handleApproveTestSet}
-                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
+                  disabled={isGenerating}
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <CheckCircle className="h-5 w-5" />
-                  Approve Test Set & Continue
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="h-5 w-5" />
+                      Approve Eval Set & Continue
+                    </>
+                  )}
                 </button>
               </div>
             </div>

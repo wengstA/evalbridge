@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Lightbulb, MessageSquare, BarChart3, RefreshCw, ArrowRight, Info, Send, User, Bot, Trash2, Edit, HelpCircle, Settings, ArrowUpDown } from "lucide-react"
 import { useWorkflow } from "@/contexts/workflow-context"
+import { BlueprintCardRedesigned } from "@/components/blueprint-card-redesigned"
 import type { JSX } from "react"
 
 interface ChatMessage {
@@ -417,12 +418,14 @@ Can you help me understand this dimension better and suggest specific evaluation
   const characterCount = inputText.length
   const maxCharacters = 2000
 
-  const handlePriorityChange = (cardId: string, newPriority: "High" | "Medium" | "Low") => {
+  const handlePriorityChange = (cardId: string, newPriority: "Critical" | "High" | "Medium" | "Low") => {
     setBlueprintCards((prev) => prev.map((card) => (card.id === cardId ? { ...card, priority: newPriority } : card)))
   }
 
-  const getPriorityColor = (priority: "High" | "Medium" | "Low") => {
+  const getPriorityColor = (priority: "Critical" | "High" | "Medium" | "Low") => {
     switch (priority) {
+      case "Critical":
+        return "bg-red-100 text-red-800 border-red-200"
       case "High":
         return "bg-red-100 text-red-800 border-red-200"
       case "Medium":
@@ -746,249 +749,29 @@ Can you help me understand this dimension better and suggest specific evaluation
                     </Button>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {blueprintCards
                       .sort((a, b) => {
-                        const priorityOrder = { High: 0, Medium: 1, Low: 2 }
+                        const priorityOrder = { Critical: 0, High: 1, Medium: 2, Low: 3 }
                         return priorityOrder[a.priority] - priorityOrder[b.priority]
                       })
                       .map((card) => (
-                        <Card
+                        <BlueprintCardRedesigned
                           key={card.id}
-                          className="border border-slate-200 hover:border-blue-300 transition-all duration-200 shadow-sm hover:shadow-lg bg-white cursor-pointer group"
-                          onClick={() => handleCardClick(card)}
-                        >
-                          <CardContent className="p-6 space-y-6 bg-gray-50 px-[54px] py-0">
-                            <div className="space-y-6">
-                              <div className="flex items-start justify-between pt-6">
-                                <div className="flex items-center gap-4">
-                                  {card.icon}
-                                  <div>
-                                    <div className="flex items-center gap-2">
-                                      <h3 className="text-xl font-semibold text-slate-900 mb-1">{card.title}</h3>
-                                      <span className="text-xs text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        💬 Click to discuss
-                                      </span>
-                                    </div>
-                                    <Badge
-                                      variant="outline"
-                                      className={`font-semibold ${getPriorityColor(card.priority)}`}
-                                    >
-                                      {card.priority} Priority
-                                    </Badge>
-                                  </div>
-                                </div>
-
-                                <div onClick={(e) => e.stopPropagation()}>
-                                  <Select
-                                    value={card.priority}
-                                    onValueChange={(value: "High" | "Medium" | "Low") =>
-                                      handlePriorityChange(card.id, value)
-                                    }
-                                  >
-                                  <SelectTrigger className="w-32">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="High">High</SelectItem>
-                                    <SelectItem value="Medium">Medium</SelectItem>
-                                    <SelectItem value="Low">Low</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                </div>
-                              </div>
-
-                              <div className="space-y-6 bg-white rounded-lg p-6 border border-slate-200">
-                                <div>
-                                  <h4 className="font-semibold text-slate-900 mb-3 text-lg">Description</h4>
-                                  <div className="text-slate-700 leading-relaxed">
-                                    {renderMarkdown(card.description)}
-                                  </div>
-                                </div>
-
-                                <div>
-                                  <h4 className="font-semibold text-slate-900 mb-3 text-lg">User Value</h4>
-                                  <div className="text-slate-700 leading-relaxed">{renderMarkdown(card.userValue)}</div>
-                                </div>
-
-                                <div>
-                                  <h4 className="font-semibold text-slate-900 mb-3 text-lg">
-                                    Key Technical Factors (Image-to-3D)
-                                  </h4>
-                                  <div className="space-y-3">
-                                    {card.id === "identity-and-appeal" && (
-                                      <>
-                                        <div className="p-3 bg-slate-50 rounded-lg">
-                                          <p className="font-medium text-slate-800 mb-1">
-                                            Identity-Conditioned 3D Lifting:
-                                          </p>
-                                          <p className="text-slate-600 text-sm">
-                                            Ability to lift 2D facial identity features (from the photo) into the 3D
-                                            implicit representation.
-                                          </p>
-                                        </div>
-                                        <div className="p-3 bg-slate-50 rounded-lg">
-                                          <p className="font-medium text-slate-800 mb-1">
-                                            Disentangled Style & Identity:
-                                          </p>
-                                          <p className="text-slate-600 text-sm">
-                                            Ensuring the "Q-version" style prompt only affects the style and not the
-                                            core facial structure.
-                                          </p>
-                                        </div>
-                                        <div className="p-3 bg-slate-50 rounded-lg">
-                                          <p className="font-medium text-slate-800 mb-1">
-                                            Geometric Facial Feature Generation:
-                                          </p>
-                                          <p className="text-slate-600 text-sm">
-                                            Accuracy of the generated 3D mesh (e.g., nose shape, eye sockets) relative
-                                            to the source identity.
-                                          </p>
-                                        </div>
-                                      </>
-                                    )}
-                                    {card.id === "form-and-stylization" && (
-                                      <>
-                                        <div className="p-3 bg-slate-50 rounded-lg">
-                                          <p className="font-medium text-slate-800 mb-1">
-                                            Global Style Conditioning (Geometry & Texture):
-                                          </p>
-                                          <p className="text-slate-600 text-sm">
-                                            Ensuring the entire 3D generation process adheres to the "Q-version" art
-                                            language.
-                                          </p>
-                                        </div>
-                                        <div className="p-3 bg-slate-50 rounded-lg">
-                                          <p className="font-medium text-slate-800 mb-1">
-                                            Geometry Simplification & Abstraction:
-                                          </p>
-                                          <p className="text-slate-600 text-sm">
-                                            Generating simplified and appealing shapes for the model.
-                                          </p>
-                                        </div>
-                                        <div className="p-3 bg-slate-50 rounded-lg">
-                                          <p className="font-medium text-slate-800 mb-1">
-                                            Coherent Shape & Pose Generation:
-                                          </p>
-                                          <p className="text-slate-600 text-sm">
-                                            Ensuring all components of the model have correct proportions and pose.
-                                          </p>
-                                        </div>
-                                      </>
-                                    )}
-                                    {card.id === "material-expression" && (
-                                      <>
-                                        <div className="p-3 bg-slate-50 rounded-lg">
-                                          <p className="font-medium text-slate-800 mb-1">
-                                            Neural Material Decomposition:
-                                          </p>
-                                          <p className="text-slate-600 text-sm">
-                                            Generating separate PBR maps (Albedo, Roughness, Normals) for the model.
-                                          </p>
-                                        </div>
-                                        <div className="p-3 bg-slate-50 rounded-lg">
-                                          <p className="font-medium text-slate-800 mb-1">
-                                            Albedo Decoupling (Inverse Rendering):
-                                          </p>
-                                          <p className="text-slate-600 text-sm">
-                                            Separating the true material color from any shadows or highlights present in
-                                            the 2D source photo.
-                                          </p>
-                                        </div>
-                                        <div className="p-3 bg-slate-50 rounded-lg">
-                                          <p className="font-medium text-slate-800 mb-1">
-                                            SSS & Translucency Generation:
-                                          </p>
-                                          <p className="text-slate-600 text-sm">
-                                            Generating data required for renderers to simulate light passing through
-                                            skin.
-                                          </p>
-                                        </div>
-                                      </>
-                                    )}
-                                    {card.id === "technical-integrity" && (
-                                      <>
-                                        <div className="p-3 bg-slate-50 rounded-lg">
-                                          <p className="font-medium text-slate-800 mb-1">Implicit Field Coherency:</p>
-                                          <p className="text-slate-600 text-sm">
-                                            Ensuring the underlying neural field is quality and stable, with no
-                                            "floaters" or noisy artifacts in 3D space.
-                                          </p>
-                                        </div>
-                                        <div className="p-3 bg-slate-50 rounded-lg">
-                                          <p className="font-medium text-slate-800 mb-1">Mesh Extraction Quality:</p>
-                                          <p className="text-slate-600 text-sm">
-                                            Ensuring the algorithm that converts the implicit field into an explicit
-                                            polygon mesh is of high fidelity.
-                                          </p>
-                                        </div>
-                                        <div className="p-3 bg-slate-50 rounded-lg">
-                                          <p className="font-medium text-slate-800 mb-1">
-                                            Automated UV Unwrapping & Texturing:
-                                          </p>
-                                          <p className="text-slate-600 text-sm">
-                                            Ensuring the automated process that applies the generated texture map
-                                            without visible seams.
-                                          </p>
-                                        </div>
-                                      </>
-                                    )}
-                                  </div>
-                                </div>
-
-                                <div>
-                                  <h4 className="font-semibold text-slate-900 mb-3 text-lg">Visual Examples</h4>
-                                  <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-                                    <table className="w-full">
-                                      <thead className="bg-slate-50 border-b border-slate-200">
-                                        <tr>
-                                          <th className="text-left px-4 py-3 text-sm font-medium text-slate-700 w-1/2">
-                                            👍 GOOD EXAMPLE
-                                          </th>
-                                          <th className="text-left px-4 py-3 text-sm font-medium text-slate-700 w-1/2">
-                                            👎 BAD EXAMPLE
-                                          </th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr className="border-b border-slate-100">
-                                          <td className="px-4 py-3 text-sm text-slate-600">{card.examples.good}</td>
-                                          <td className="px-4 py-3 text-sm text-slate-600">{card.examples.bad}</td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                </div>
-
-                                <div className="flex justify-between items-center pt-4 border-t border-slate-200" onClick={(e) => e.stopPropagation()}>
-                                  <div className="flex gap-2">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => handleCardAskAgent(card)}
-                                      className="text-slate-600 hover:text-slate-800"
-                                    >
-                                      💬 Ask Agent
-                                    </Button>
-                                  </div>
-                                  <div className="flex gap-1">
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
+                          id={card.id}
+                          priority={card.priority}
+                          icon={card.icon}
+                          title={card.title}
+                          description={card.description}
+                          userValue={card.userValue}
+                          keyTechnicalFactors={card.keyTechnicalFactors}
+                          examples={card.examples}
+                          onAskAgent={() => handleCardAskAgent(card)}
+                          onEdit={() => {
                                         setChatInput(`I want to modify the "${card.title}" capability. Can you help me improve it?`);
                                         chatInputRef.current?.focus();
                                       }}
-                                      className="text-slate-500 hover:text-blue-600 p-1 h-8 w-8"
-                                    >
-                                      <Edit className="h-3 w-3" />
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={async (e) => {
-                                        e.stopPropagation();
+                          onDelete={async () => {
                                         if (confirm(`Are you sure you want to delete "${card.title}"?`)) {
                                           const result = await deleteCapability(card.id);
                                           if (result.success) {
@@ -1002,16 +785,8 @@ Can you help me understand this dimension better and suggest specific evaluation
                                           }
                                         }
                                       }}
-                                      className="text-slate-500 hover:text-red-600 p-1 h-8 w-8"
-                                    >
-                                      <Trash2 className="h-3 w-3" />
-                                    </Button>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
+                          onPriorityChange={(priority) => handlePriorityChange(card.id, priority)}
+                        />
                       ))}
                   </div>
 

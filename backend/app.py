@@ -244,7 +244,7 @@ CONVERSATION STYLE:
 
     def create_chat_session(self):
         return client.chats.create(
-            model="gemini-2.0-flash-exp"
+            model="gemini-2.5-flash"
         )
 
 consultant = EvaluationConsultant()
@@ -279,7 +279,7 @@ def chat():
 
         # Generate response using Gemini
         response = client.models.generate_content(
-            model="gemini-2.0-flash-exp",
+            model="gemini-2.5-pro",
             contents=enhanced_prompt
         )
         
@@ -440,6 +440,365 @@ def get_domain_configs():
         })
     except Exception as e:
         return jsonify({'error': f'Failed to get domain configs: {str(e)}'}), 500
+
+def extract_product_info_and_functions(user_input: str) -> dict:
+    """Step 0: Information Extraction Agent - Intelligently parse user input"""
+    extraction_prompt = f"""# ROLE: 产品需求信息提取专家 (Product Requirements Extraction Specialist)
+
+# CONTEXT:
+你是一个专门从用户描述中提取结构化产品信息的AI助手。用户可能会用自然语言混合描述产品信息和期望功能，你的任务是将这些信息清晰地分离和组织。
+
+# TASK:
+分析用户提供的输入，将其智能地分离为两个核心部分：
+1. **产品信息 (Product Information)**: 产品的基本信息、背景、定位、目标用户等
+2. **理想功能 (Ideal Functions)**: 用户期望的具体功能、特性、能力需求等
+
+# INPUT:
+用户输入: {user_input}
+
+# OUTPUT CONSTRAINTS (MANDATORY):
+1. 你必须且只能返回一个符合以下JSON Schema的 **单一JSON对象**。不要包含任何JSON区块之外的解释性文本。
+2. 如果用户输入中某部分信息不明确，请基于上下文进行合理推断。
+3. 确保两个字段都有实质性内容，不能为空。
+
+# JSON SCHEMA (Strictly Enforce):
+{{
+  "productInfo": "string (产品的基本信息、背景、定位、用户群体等)",
+  "idealFunctions": "string (期望的功能、特性、能力需求等)"
+}}
+
+# EXAMPLES:
+
+输入: "我想做一个3D头像生成器，用户上传照片就能生成卡通版3D模型，主要面向社交媒体用户，希望模型质量高、风格一致、能快速生成。"
+
+输出:
+{{
+  "productInfo": "3D头像生成器产品，通过用户上传的照片生成卡通版3D模型，主要目标用户是社交媒体用户，用于个人头像和分享需求。",
+  "idealFunctions": "高质量3D模型生成、风格一致的卡通化处理、快速生成响应、支持多种照片输入格式、适合社交媒体分享的输出格式。"
+}}"""
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.5-pro",
+            contents=extraction_prompt
+        )
+        
+        response_text = response.text.strip()
+        
+        # Try to extract JSON from the response
+        import re
+        json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+        if json_match:
+            json_str = json_match.group(0)
+            return json.loads(json_str)
+        else:
+            # Fallback: if extraction fails, use the original input for both
+            return {
+                "productInfo": user_input,
+                "idealFunctions": user_input
+            }
+            
+    except Exception as e:
+        print(f"Information extraction error: {str(e)}")
+        # Fallback: if extraction fails, use the original input for both
+        return {
+            "productInfo": user_input,
+            "idealFunctions": user_input
+        }
+
+def call_domain_router_agent(product_info: str, ideal_functions: str) -> dict:
+    """Step A: Domain Router Agent - Identifies required expert knowledge domains"""
+    
+    print(f"[DEBUG] Domain router called with product_info: {product_info[:50]}...")
+    print(f"[DEBUG] Domain router called with ideal_functions: {ideal_functions[:50]}...")
+    
+    print(f"[DEBUG] Building domain router prompt...")
+    domain_router_prompt = f"""# ROLE: 首席系统架构师 (Chief Systems Architect) & 专家调度中枢
+
+# CONTEXT:
+你是一个AI评测系统的"路由"中枢。你的任务是分析一个新产品的高阶需求，并准确判断：要"评测"这个产品，我们必须从哪些"专业领域"视角切入。
+
+# TASK:
+分析用户提供的 [产品信息] 和 [理想功能]。你必须识别出三个关键的知识领域：
+
+# INPUT:
+[产品信息]: {product_info}
+[理想功能]: {ideal_functions}
+
+# TASK:
+分析用户提供的 [产品信息] 和 [理想功能]。你必须识别出三个关键的知识领域：
+1. 专业/业务领域 (Professional/Business Domain): 即该产品所属的行业核心价值。 (例如：电影制作、广告营销、医疗诊断、游戏设计)。
+2. 技术实现领域 (Technical Domain): 即支撑该产品的核心技术栈。 (例如：实时渲染管线、物理仿真、AIGC生成算法、生物信息学)。
+3. 核心用户价值 (Core User Value / Persona): 即用户使用该产品的核心驱动力。 (例如：追求情感共鸣、追求生产力效率、追求商业变现)。
+
+# INPUT (User will provide):
+[产品信息]: {product_info}
+[理想功能]: {ideal_functions}
+
+# OUTPUT CONSTRAINTS (MANDATORY):
+1. 你必须且只能返回一个符合以下JSON Schema的 **单一JSON对象**。不要包含任何JSON区块之外的解释性文本。
+2. `knowledgeDescription` 必须是精炼的短语，用于"注入"给下一个Agent作为指令。
+
+# JSON SCHEMA (Strictly Enforce):
+{{
+  "professionalDomain": {{
+    "domainName": "string (例如: 广告营销与病毒式传播)",
+    "knowledgeDescription": "string (描述该领域的核心知识点，例如: 精通视觉锤、黄金3秒吸引力法则、A/B测试和CTR转化漏斗)"
+  }},
+  "technicalDomain": {{
+    "domainName": "string (例如: 3D视频AIGC管线)",
+    "knowledgeDescription": "string (描述该领域的核心技术点，例如: 精通3D资产生成、动态绑定、场景渲染与视频合成技术)"
+  }},
+  "userDomain": {{
+    "domainName": "string (例如: 市场部经理 (User Persona))",
+    "knowledgeDescription": "string (描述该用户最关心什么，例如: 深刻理解用户对'ROI最大化'和'品牌安全'的终极需求)"
+  }}
+}}"""
+
+    try:
+        print("[DEBUG] Calling Gemini API for domain router...")
+        response = client.models.generate_content(
+            model="gemini-2.5-pro",
+            contents=domain_router_prompt
+        )
+        
+        print(f"[DEBUG] API call successful. Response type: {type(response)}")
+        if hasattr(response, 'text'):
+            response_text = response.text.strip()
+            print(f"[DEBUG] Raw domain router response: {response_text}")
+        else:
+            print(f"[DEBUG] Response has no text attribute: {response}")
+            raise ValueError("No text in API response")
+        
+        # Try to extract JSON from the response (handle markdown code blocks)
+        import re
+        
+        # First try to remove markdown code block markers
+        if '```json' in response_text:
+            print("[DEBUG] Detected markdown code block in domain router response")
+            # Extract content between ```json and ```
+            json_match = re.search(r'```json\s*(.*?)\s*```', response_text, re.DOTALL)
+            if json_match:
+                json_str = json_match.group(1).strip()
+                print(f"[DEBUG] Extracted JSON string from domain router: {json_str[:100]}...")
+                # Fix double braces that might be caused by f-string formatting
+                json_str = json_str.replace('{{', '{').replace('}}', '}')
+            else:
+                # Fallback to normal JSON extraction
+                json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+                if json_match:
+                    json_str = json_match.group(0)
+                else:
+                    raise ValueError("No valid JSON found in domain router response")
+        else:
+            # Normal JSON extraction
+            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+            if json_match:
+                json_str = json_match.group(0)
+            else:
+                raise ValueError("No valid JSON found in domain router response")
+        
+        return json.loads(json_str)
+            
+    except Exception as e:
+        print(f"Domain router error: {str(e)}")
+        raise e
+
+def call_dynamic_expert_agent(domain_context: dict, product_info: str, ideal_functions: str) -> list:
+    """Step B & C: Dynamic Expert Agent - Uses injected expertise for capability decomposition"""
+    
+    # Build the dynamic prompt with injected expertise
+    dynamic_expert_prompt = f"""# ROLE: 跨领域首席产品架构师 (Cross-Domain Principal Architect)
+
+# CONTEXT:
+你是一个自动化评测Agent。你的目标是将高阶产品理想态，翻译为一组结构化的核心能力维度。
+
+# PERSONA MANDATE (MANDATORY):
+为了完成此任务，你必须扮演一个独特的、融合了多领域知识的超级专家。你的分析必须同时反映以下三种视角：
+
+###########################################################
+# [INJECTED EXPERTISE (HOT-SWAPPABLE CONTEXT)]
+
+1. 你的 [专业/业务] 视角 ({domain_context['professionalDomain']['domainName']}):
+   你必须: {domain_context['professionalDomain']['knowledgeDescription']}
+
+2. 你的 [技术实现] 视角 ({domain_context['technicalDomain']['domainName']}):
+   你必须: {domain_context['technicalDomain']['knowledgeDescription']}
+
+3. 你的 [核心用户] 视角 ({domain_context['userDomain']['domainName']}):
+   你必须: {domain_context['userDomain']['knowledgeDescription']}
+
+###########################################################
+
+# TASK:
+现在，使用你上述的"三重融合专家视角"，严格分析用户提供的 [产品信息] 和 [理想功能]。
+将此需求解构为一个"核心能力维度"的JSON数组。
+你的输出必须同时体现出你对专业、技术和用户三方面的深刻理解。
+例如, 你的 `keyTechnicalFactors` 必须准确反映技术挑战，而你的 `userValue` 必须直指用户的核心痛点。
+
+# INPUT (User will provide):
+[产品信息]: {product_info}
+[理想功能]: {ideal_functions}
+
+# OUTPUT CONSTRAINTS (MANDATORY):
+1. 你必须且只能返回一个符合以下JSON Schema的 **JSON数组 (Array)**。不要包含任何JSON区块之外的解释性文本。
+2. 你输出的所有内容（尤其是 `title`, `description`, `userValue`, `keyTechnicalFactors`）必须严格反映你在 [INJECTED EXPERTISE] 中被赋予的专业身份。
+3. `priority` 必须是 "Critical", "High", "Medium" 之一。`icon` 是单个Emoji。
+4. `keyTechnicalFactors` 必须是具体的技术术语数组，每个元素都应该是一个包含name和description的对象。
+
+# JSON SCHEMA (Strictly Enforce):
+[
+  {{
+    "id": "string (kebab-case-identifier)",
+    "priority": "string (Critical | High | Medium)",
+    "icon": "string (Single Emoji)",
+    "title": "string (必须反映专家视角的维度标题)",
+    "description": "string (必须反映专家视角的详细描述)",
+    "userValue": "string (必须反映专家视角的深刻用户价值. Use Markdown.)",
+    "keyTechnicalFactors": [
+      {{
+        "name": "string (具体的技术挑战概念)",
+        "description": "string (该技术挑战的详细描述)"
+      }}
+    ],
+    "examples": {{
+      "good": "string (A concrete example of success)",
+      "bad": "string (A concrete example of failure)"
+    }},
+    "order": "integer"
+  }}
+]"""
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.5-pro",
+            contents=dynamic_expert_prompt
+        )
+        
+        response_text = response.text.strip()
+        
+        # Try to extract JSON from the response (handle markdown code blocks)
+        import re
+        
+        # First try to remove markdown code block markers
+        if '```json' in response_text:
+            # Extract content between ```json and ```
+            json_match = re.search(r'```json\s*(.*?)\s*```', response_text, re.DOTALL)
+            if json_match:
+                json_str = json_match.group(1).strip()
+            else:
+                # Fallback to normal JSON extraction
+                json_match = re.search(r'\[.*\]', response_text, re.DOTALL)
+                if json_match:
+                    json_str = json_match.group(0)
+                else:
+                    raise ValueError("No valid JSON found in dynamic expert response")
+        else:
+            # Normal JSON extraction
+            json_match = re.search(r'\[.*\]', response_text, re.DOTALL)
+            if json_match:
+                json_str = json_match.group(0)
+            else:
+                raise ValueError("No valid JSON found in dynamic expert response")
+        
+        return json.loads(json_str)
+            
+    except Exception as e:
+        print(f"Dynamic expert error: {str(e)}")
+        raise e
+
+@app.route('/api/generate-capability-dimensions', methods=['POST'])
+def generate_capability_dimensions():
+    """V3: Three-stage AI workflow with intelligent input extraction"""
+    try:
+        data = request.get_json()
+        
+        # Check if we have structured input or need to extract
+        product_info = data.get('productInfo', '')
+        ideal_functions = data.get('idealFunctions', '')
+        user_input = data.get('userInput', '')
+        
+        # If we don't have structured input, extract from userInput
+        if not product_info or not ideal_functions:
+            if not user_input:
+                return jsonify({'error': 'Either structured (productInfo + idealFunctions) or unstructured (userInput) input is required'}), 400
+            
+            # Step 0: Extract product info and ideal functions using AI
+            print("Step 0: Extracting product information and ideal functions...")
+            extracted_info = extract_product_info_and_functions(user_input)
+            product_info = extracted_info.get('productInfo', user_input)
+            ideal_functions = extracted_info.get('idealFunctions', user_input)
+            print(f"Extracted - Product Info: {product_info[:100]}...")
+            print(f"Extracted - Ideal Functions: {ideal_functions[:100]}...")
+
+        # Step A: Call Domain Router Agent
+        print("Step A: Calling Domain Router Agent...")
+        domain_context = call_domain_router_agent(product_info, ideal_functions)
+        print(f"Domain context identified: {domain_context}")
+        
+        # Step B & C: Call Dynamic Expert Agent with injected context
+        print("Step B & C: Calling Dynamic Expert Agent with injected expertise...")
+        blueprint_cards = call_dynamic_expert_agent(domain_context, product_info, ideal_functions)
+        print(f"Generated {len(blueprint_cards)} capability dimensions")
+        
+        return jsonify({
+            'blueprintCards': blueprint_cards,
+            'extractedInfo': {  # Return extracted info for debugging/verification
+                'productInfo': product_info,
+                'idealFunctions': ideal_functions
+            },
+            'domainContext': domain_context,  # Optional: Return for debugging
+            'timestamp': datetime.now().isoformat(),
+            'status': 'success'
+        })
+            
+    except Exception as e:
+        print(f"Capability dimensions generation error: {str(e)}")
+        return jsonify({'error': f'Failed to generate capability dimensions: {str(e)}'}), 500
+
+@app.route('/api/generate-blueprint', methods=['POST'])
+def generate_blueprint():
+    """Legacy endpoint - redirects to new two-stage workflow"""
+    try:
+        data = request.get_json()
+        user_input = data.get('userInput', '')
+        
+        if not user_input:
+            return jsonify({'error': 'User input is required'}), 400
+        
+        # Step 0: Extract product info and ideal functions using AI
+        print("Step 0: Extracting product information and ideal functions...")
+        extracted_info = extract_product_info_and_functions(user_input)
+        product_info = extracted_info.get('productInfo', user_input)
+        ideal_functions = extracted_info.get('idealFunctions', user_input)
+        print(f"Extracted - Product Info: {product_info[:100]}...")
+        print(f"Extracted - Ideal Functions: {ideal_functions[:100]}...")
+        
+        # Call the new three-stage workflow
+        return generate_capability_dimensions_internal(product_info, ideal_functions)
+            
+    except Exception as e:
+        print(f"Blueprint generation error: {str(e)}")
+        return jsonify({'error': f'Failed to generate blueprint: {str(e)}'}), 500
+
+def generate_capability_dimensions_internal(product_info: str, ideal_functions: str):
+    """Internal function to avoid code duplication"""
+    try:
+        # Step A: Call Domain Router Agent
+        domain_context = call_domain_router_agent(product_info, ideal_functions)
+        
+        # Step B & C: Call Dynamic Expert Agent with injected context
+        blueprint_cards = call_dynamic_expert_agent(domain_context, product_info, ideal_functions)
+        
+        return jsonify({
+            'blueprintCards': blueprint_cards,
+            'domainContext': domain_context,
+            'timestamp': datetime.now().isoformat(),
+            'status': 'success'
+        })
+        
+    except Exception as e:
+        raise e
 
 @app.route('/api/templates', methods=['GET'])
 def get_templates():

@@ -22,12 +22,11 @@ interface WorkflowContextType {
 const WorkflowContext = createContext<WorkflowContextType | undefined>(undefined)
 
 const initialSteps: WorkflowStep[] = [
-  { id: "project-setup", name: "Project Setup", href: "/project-setup", completed: false, current: true },
-  { id: "feedback-analysis", name: "Feedback Analysis", href: "/feedback-analysis", completed: false, current: false },
-  { id: "eval-planning", name: "Eval Configuration", href: "/eval-planning", completed: false, current: false },
+  { id: "requirements-analysis", name: "Requirements Analysis", href: "/feedback-analysis", completed: false, current: true },
+  { id: "eval-set-up", name: "Eval Set Up", href: "/eval-planning", completed: false, current: false },
   {
-    id: "eval-planning-overview",
-    name: "Plan Overview",
+    id: "evaluation-overview",
+    name: "Evaluation Overview",
     href: "/eval-planning/overview",
     completed: false,
     current: false,

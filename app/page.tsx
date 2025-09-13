@@ -14,6 +14,8 @@ import {
   Activity,
   Calendar,
   User,
+  Settings,
+  Database,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -76,6 +78,13 @@ const quickActions = [
     href: "/eval-planning",
   },
   {
+    title: "Data Engine",
+    description: "Manage models and datasets for evaluation",
+    icon: Database,
+    href: "/eval-execution",
+    color: "bg-green-500",
+  },
+  {
     title: "Run Model Eval",
     description: "Execute evaluations on your AI models",
     icon: TestTube,
@@ -105,12 +114,49 @@ export default function Dashboard() {
                   className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-3 gap-2"
                 >
                   <Plus className="h-5 w-5" />
-                  New Project
+                  New Product
                 </Button>
               </Link>
             </div>
           </div>
         </header>
+
+        {/* Product Information */}
+        <div className="px-6 py-4 border-b border-border bg-muted/30">
+          <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <span className="text-2xl font-bold text-primary">EB</span>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-foreground">Copilot 3D</h3>
+                      <p className="text-muted-foreground">AI-powered 3D asset generation platform</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <p className="text-sm text-muted-foreground">Active Projects</p>
+                    <p className="text-2xl font-bold text-foreground">3</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-muted-foreground">Total Evaluations</p>
+                    <p className="text-2xl font-bold text-foreground">12</p>
+                  </div>
+                  <Link href="/project-setup?mode=edit">
+                    <Button variant="outline" className="gap-2">
+                      <Settings className="h-4 w-4" />
+                      Product Settings
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Main Content */}
         <div className="p-6 space-y-6">
@@ -123,7 +169,7 @@ export default function Dashboard() {
                     Create a new project to analyze your AI model performance and build comprehensive evaluation sets.
                   </p>
                 </div>
-                <Link href="/project-setup">
+                <Link href="/feedback-analysis">
                   <Button
                     size="lg"
                     className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-4 text-lg gap-3"
@@ -150,6 +196,37 @@ export default function Dashboard() {
                   </div>
                 </CardContent>
               </Card>
+            ))}
+          </div>
+
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {quickActions.map((action) => (
+              <Link key={action.title} href={action.href}>
+                <Card className={`hover:shadow-lg transition-all duration-300 cursor-pointer group ${
+                  action.title === "Data Engine" ? "border-green-200 bg-gradient-to-r from-green-50 to-emerald-50" : ""
+                }`}>
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                        action.color ? action.color : "bg-primary/10"
+                      }`}>
+                        <action.icon className={`h-6 w-6 ${
+                          action.color ? "text-white" : "text-primary"
+                        }`} />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className={`font-semibold text-lg ${
+                          action.title === "Data Engine" ? "text-green-800" : ""
+                        }`}>{action.title}</h3>
+                        <p className={`${
+                          action.title === "Data Engine" ? "text-green-700" : "text-muted-foreground"
+                        }`}>{action.description}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
 

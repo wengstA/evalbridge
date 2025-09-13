@@ -176,7 +176,7 @@ export default function ModelEvaluation() {
         
         // Reset success status after 3 seconds
         setTimeout(() => setConnectionStatus('idle'), 3000)
-      } catch (error) {
+    } catch (error) {
         setIsTestingConnection(false)
         setConnectionStatus('error')
         addLog("error", `Failed to connect to model: ${error}`)
@@ -247,7 +247,7 @@ export default function ModelEvaluation() {
         <header className="border-b border-border bg-card px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-foreground font-space-grotesk">Model Evaluation</h1>
+              <h1 className="text-2xl font-bold text-foreground font-space-grotesk">Eval Execution</h1>
               <p className="text-muted-foreground">
                 Execute evaluation tests on your AI models with real-time monitoring
               </p>
@@ -288,7 +288,7 @@ export default function ModelEvaluation() {
                         value={modelConfig.name}
                         onChange={(e) => setModelConfig((prev) => ({ ...prev, name: e.target.value }))}
                       />
-                    </div>
+                </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="endpoint">API Endpoint</Label>
@@ -298,7 +298,7 @@ export default function ModelEvaluation() {
                         value={modelConfig.endpoint}
                         onChange={(e) => setModelConfig((prev) => ({ ...prev, endpoint: e.target.value }))}
                       />
-                    </div>
+                </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="apiKey">API Key</Label>
@@ -309,7 +309,7 @@ export default function ModelEvaluation() {
                         value={modelConfig.apiKey}
                         onChange={(e) => setModelConfig((prev) => ({ ...prev, apiKey: e.target.value }))}
                       />
-                    </div>
+              </div>
 
                     <div className="flex justify-end">
                       <Button
@@ -345,7 +345,7 @@ export default function ModelEvaluation() {
                           </>
                         )}
                       </Button>
-                    </div>
+                </div>
                   </CardContent>
                 </Card>
 
@@ -367,7 +367,7 @@ export default function ModelEvaluation() {
                         rows={6}
                         className="font-mono text-sm"
                       />
-                    </div>
+            </div>
 
                     <div className="space-y-2">
                       <Label>Request Timeout</Label>
@@ -377,10 +377,10 @@ export default function ModelEvaluation() {
                     <div className="space-y-2">
                       <Label>Batch Size</Label>
                       <Input placeholder="10" />
-                    </div>
+                  </div>
                   </CardContent>
                 </Card>
-              </div>
+                </div>
 
               {!isConfigured ? (
                 <Alert className="border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50">
@@ -440,7 +440,7 @@ export default function ModelEvaluation() {
                           <div className="text-center py-8 text-muted-foreground">
                             <Activity className="h-8 w-8 mx-auto mb-2" />
                             <p>No active test runs</p>
-                          </div>
+                    </div>
                         ) : (
                           testRuns.slice(0, 3).map((run) => (
                             <div key={run.id} className="space-y-3 p-4 border border-border rounded-lg">
@@ -448,15 +448,15 @@ export default function ModelEvaluation() {
                                 <div className="flex items-center gap-2">
                                   {getStatusIcon(run.status)}
                                   <span className="font-medium">{run.testSet}</span>
-                                </div>
+                  </div>
                                 <Badge className={getStatusColor(run.status)}>{run.status}</Badge>
-                              </div>
+            </div>
 
                               <Progress value={run.progress} className="h-2" />
 
                               <div className="flex items-center justify-between text-sm text-muted-foreground">
                                 <span>{Math.round(run.progress)}% complete</span>
-                                <div className="flex gap-2">
+                <div className="flex gap-2">
                                   {run.status === "running" && (
                                     <>
                                       <Button size="sm" variant="outline" onClick={() => pauseTest(run.id)}>
@@ -467,7 +467,7 @@ export default function ModelEvaluation() {
                                       </Button>
                                     </>
                                   )}
-                                </div>
+          </div>
                               </div>
                             </div>
                           ))
@@ -507,7 +507,7 @@ export default function ModelEvaluation() {
                               <span className="font-medium">{value}</span>
                             </div>
                           ))}
-                        </div>
+                          </div>
                       </CardContent>
                     </Card>
                   ))}

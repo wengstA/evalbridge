@@ -59,55 +59,57 @@ interface TestResult {
 const mockReports: TestResult[] = [
   {
     id: "report-1",
-    name: "Hunyuan v2.1",
+    name: "Q-Figurine Generator v1.0",
     date: "2024-01-15",
     overallScore: 82,
     status: "good",
     capabilities: [
-      { capability: "Visual Quality", current: 85, baseline: 75, target: 90, trend: "up" },
-      { capability: "Geometric Accuracy", current: 78, baseline: 70, target: 85, trend: "up" },
-      { capability: "Language Understanding", current: 88, baseline: 80, target: 90, trend: "stable" },
-      { capability: "Response Coherence", current: 80, baseline: 75, target: 85, trend: "up" },
-      { capability: "Edge Case Handling", current: 72, baseline: 65, target: 80, trend: "down" },
+      { capability: "Capturing Likeness & Appeal", current: 85, baseline: 83, target: 90, trend: "up" },
+      { capability: "Unified Art Style", current: 78, baseline: 76, target: 85, trend: "down" },
+      { capability: "Material Expression", current: 88, baseline: 87, target: 90, trend: "stable" },
+      { capability: "Technical Quality", current: 80, baseline: 78, target: 85, trend: "up" },
     ],
     metrics: {
-      LPIPS: 0.15,
-      FID: 12.3,
-      SSIM: 0.87,
-      "Human Rating": 4.2,
+      "Facial Landmark Accuracy": 0.87,
+      "Identity Preservation Score": 0.82,
+      "Texture Detail Preservation": 0.15,
+      "Material Realism Score": 4.2,
       "Processing Time": 2.3,
       "Success Rate": 0.94,
     },
   },
   {
     id: "report-2",
-    name: "Tripo v2.5",
+    name: "Q-Figurine Generator v0.9",
     date: "2024-01-10",
-    overallScore: 76,
+    overallScore: 79,
     status: "needs-improvement",
     capabilities: [
-      { capability: "Classification Accuracy", current: 82, baseline: 78, target: 88, trend: "up" },
-      { capability: "Context Understanding", current: 74, baseline: 70, target: 82, trend: "stable" },
-      { capability: "Multi-label Handling", current: 68, baseline: 65, target: 78, trend: "down" },
-      { capability: "Robustness", current: 79, baseline: 75, target: 85, trend: "up" },
-      { capability: "Inference Speed", current: 85, baseline: 80, target: 88, trend: "up" },
+      { capability: "Capturing Likeness & Appeal", current: 83, baseline: 81, target: 90, trend: "down" },
+      { capability: "Unified Art Style", current: 76, baseline: 74, target: 85, trend: "up" },
+      { capability: "Material Expression", current: 87, baseline: 85, target: 90, trend: "down" },
+      { capability: "Technical Quality", current: 78, baseline: 76, target: 85, trend: "stable" },
     ],
     metrics: {
-      Accuracy: 0.82,
-      Precision: 0.79,
-      Recall: 0.84,
-      "F1 Score": 0.81,
-      "Latency (ms)": 45,
-      Throughput: 1200,
+      "Facial Landmark Accuracy": 0.83,
+      "Identity Preservation Score": 0.78,
+      "Texture Detail Preservation": 0.18,
+      "Material Realism Score": 4.0,
+      "Processing Time": 2.5,
+      "Success Rate": 0.91,
     },
   },
 ]
 
 const historicalData = [
-  { date: "Week 1", overall: 72, visual: 70, geometric: 68, language: 75, coherence: 74 },
-  { date: "Week 2", overall: 75, visual: 73, geometric: 71, language: 78, coherence: 76 },
-  { date: "Week 3", overall: 78, visual: 76, geometric: 74, language: 82, coherence: 78 },
-  { date: "Week 4", overall: 82, visual: 85, geometric: 78, language: 88, coherence: 80 },
+  { date: "Week 1", overall: 78, likeness: 81, artStyle: 74, material: 85, technical: 76 },
+  { date: "Week 2", overall: 72, likeness: 75, artStyle: 68, material: 79, technical: 71 },
+  { date: "Week 3", overall: 85, likeness: 88, artStyle: 82, material: 91, technical: 84 },
+  { date: "Week 4", overall: 79, likeness: 82, artStyle: 76, material: 86, technical: 78 },
+  { date: "Week 5", overall: 91, likeness: 94, artStyle: 88, material: 95, technical: 90 },
+  { date: "Week 6", overall: 74, likeness: 77, artStyle: 71, material: 82, technical: 73 },
+  { date: "Week 7", overall: 88, likeness: 91, artStyle: 85, material: 92, technical: 87 },
+  { date: "Week 8", overall: 82, likeness: 85, artStyle: 79, material: 88, technical: 81 },
 ]
 
 export default function EvaluationReports() {
@@ -235,49 +237,64 @@ export default function EvaluationReports() {
 
               {/* Overall Performance */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <Card>
+                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Overall Score</p>
-                        <p className="text-3xl font-bold">{selectedReport.overallScore}</p>
+                        <p className="text-sm text-blue-600 font-medium">Overall Score</p>
+                        <p className="text-4xl font-bold text-blue-900">{selectedReport.overallScore}</p>
+                        <p className="text-xs text-blue-700 mt-1">out of 100</p>
                       </div>
-                      <BarChart3 className="h-8 w-8 text-primary" />
+                      <div className="p-3 bg-blue-200 rounded-full">
+                        <BarChart3 className="h-8 w-8 text-blue-700" />
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <Progress value={selectedReport.overallScore} className="h-2 bg-blue-200" />
                     </div>
                   </CardContent>
                 </Card>
-                <Card>
+                <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Capabilities Tested</p>
-                        <p className="text-3xl font-bold">{selectedReport.capabilities.length}</p>
+                        <p className="text-sm text-green-600 font-medium">Capabilities Tested</p>
+                        <p className="text-4xl font-bold text-green-900">{selectedReport.capabilities.length}</p>
+                        <p className="text-xs text-green-700 mt-1">dimensions</p>
                       </div>
-                      <Target className="h-8 w-8 text-primary" />
+                      <div className="p-3 bg-green-200 rounded-full">
+                        <Target className="h-8 w-8 text-green-700" />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Card>
+                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Test Date</p>
-                        <p className="text-lg font-bold">{new Date(selectedReport.date).toLocaleDateString()}</p>
+                        <p className="text-sm text-purple-600 font-medium">Test Date</p>
+                        <p className="text-lg font-bold text-purple-900">{new Date(selectedReport.date).toLocaleDateString()}</p>
+                        <p className="text-xs text-purple-700 mt-1">latest run</p>
                       </div>
-                      <Calendar className="h-8 w-8 text-primary" />
+                      <div className="p-3 bg-purple-200 rounded-full">
+                        <Calendar className="h-8 w-8 text-purple-700" />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Card>
+                <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Improvements</p>
-                        <p className="text-3xl font-bold text-green-600">
+                        <p className="text-sm text-orange-600 font-medium">Improvements</p>
+                        <p className="text-4xl font-bold text-orange-900">
                           {selectedReport.capabilities.filter((c) => c.trend === "up").length}
                         </p>
+                        <p className="text-xs text-orange-700 mt-1">trending up</p>
                       </div>
-                      <TrendingUp className="h-8 w-8 text-green-600" />
+                      <div className="p-3 bg-orange-200 rounded-full">
+                        <TrendingUp className="h-8 w-8 text-orange-700" />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -285,53 +302,88 @@ export default function EvaluationReports() {
 
               {/* Capability Radar Chart */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="font-space-grotesk">Capability Performance</CardTitle>
-                    <CardDescription>Current performance vs targets and baseline</CardDescription>
+                <Card className="border-2 border-slate-200 shadow-lg">
+                  <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b">
+                    <CardTitle className="font-space-grotesk text-xl">Capability Performance</CardTitle>
+                    <CardDescription className="text-slate-600">Current performance vs targets and baseline</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <RadarChart data={radarData}>
-                        <PolarGrid />
-                        <PolarAngleAxis dataKey="capability" />
-                        <PolarRadiusAxis angle={90} domain={[0, 100]} />
+                  <CardContent className="p-6">
+                    <ResponsiveContainer width="100%" height={350}>
+                      <RadarChart data={radarData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                        <PolarGrid stroke="#e2e8f0" />
+                        <PolarAngleAxis 
+                          dataKey="capability" 
+                          tick={{ fontSize: 12, fill: '#64748b' }}
+                          className="text-slate-600"
+                        />
+                        <PolarRadiusAxis 
+                          angle={90} 
+                          domain={[0, 100]} 
+                          tick={{ fontSize: 10, fill: '#94a3b8' }}
+                          axisLine={false}
+                        />
                         <Radar
                           name="Current"
                           dataKey="current"
-                          stroke="hsl(var(--primary))"
-                          fill="hsl(var(--primary))"
+                          stroke="#3b82f6"
+                          fill="#3b82f6"
                           fillOpacity={0.3}
+                          strokeWidth={2}
                         />
                         <Radar
                           name="Target"
                           dataKey="target"
-                          stroke="hsl(var(--secondary))"
-                          fill="hsl(var(--secondary))"
+                          stroke="#10b981"
+                          fill="#10b981"
                           fillOpacity={0.1}
+                          strokeWidth={2}
+                          strokeDasharray="5 5"
                         />
                         <Radar
                           name="Baseline"
                           dataKey="baseline"
-                          stroke="hsl(var(--muted-foreground))"
+                          stroke="#f59e0b"
                           fill="none"
-                          strokeDasharray="5 5"
+                          strokeDasharray="3 3"
+                          strokeWidth={1}
                         />
                       </RadarChart>
                     </ResponsiveContainer>
+                    <div className="flex justify-center gap-6 mt-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                        <span className="text-slate-600">Current</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <span className="text-slate-600">Target</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-amber-500 rounded-full"></div>
+                        <span className="text-slate-600">Baseline</span>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="font-space-grotesk">Key Metrics</CardTitle>
-                    <CardDescription>Technical performance indicators</CardDescription>
+                <Card className="border-2 border-slate-200 shadow-lg">
+                  <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b">
+                    <CardTitle className="font-space-grotesk text-xl">Key Metrics</CardTitle>
+                    <CardDescription className="text-slate-600">Technical performance indicators</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    {Object.entries(selectedReport.metrics).map(([metric, value]) => (
-                      <div key={metric} className="flex items-center justify-between">
-                        <span className="text-sm font-medium">{metric}</span>
-                        <span className="text-sm font-bold">{value}</span>
+                  <CardContent className="p-6 space-y-4">
+                    {Object.entries(selectedReport.metrics).map(([metric, value], index) => (
+                      <div key={metric} className="p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg border border-slate-200">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-semibold text-slate-800">{metric}</span>
+                          <span className="text-lg font-bold text-blue-600">{value}</span>
+                        </div>
+                        <div className="w-full bg-slate-200 rounded-full h-2">
+                          <div 
+                            className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-500"
+                            style={{ width: `${Math.min((value / 1) * 100, 100)}%` }}
+                          ></div>
+                        </div>
                       </div>
                     ))}
                   </CardContent>
@@ -339,35 +391,58 @@ export default function EvaluationReports() {
               </div>
 
               {/* Capability Details */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="font-space-grotesk">Capability Breakdown</CardTitle>
-                  <CardDescription>Detailed performance analysis by capability</CardDescription>
+              <Card className="border-2 border-slate-200 shadow-lg">
+                <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b">
+                  <CardTitle className="font-space-grotesk text-xl">Capability Breakdown</CardTitle>
+                  <CardDescription className="text-slate-600">Detailed performance analysis by capability</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
+                <CardContent className="p-6">
+                  <div className="space-y-6">
                     {selectedReport.capabilities.map((capability, index) => (
-                      <div key={index} className="p-4 border border-border rounded-lg">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            <h4 className="font-medium">{capability.capability}</h4>
-                            {getTrendIcon(capability.trend)}
+                      <div key={index} className="p-6 bg-gradient-to-r from-white to-slate-50 border-2 border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-4">
+                            <div className="p-3 bg-blue-100 rounded-full">
+                              <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                {index + 1}
+                              </div>
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-lg text-slate-900">{capability.capability}</h4>
+                              <div className="flex items-center gap-2 mt-1">
+                                {getTrendIcon(capability.trend)}
+                                <span className="text-sm text-slate-600">
+                                  {capability.trend === "up" ? "Improving" : capability.trend === "down" ? "Declining" : "Stable"}
+                                </span>
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-4 text-sm">
-                            <span className="text-muted-foreground">
-                              Baseline: <span className="font-medium">{capability.baseline}</span>
-                            </span>
-                            <span className="text-muted-foreground">
-                              Target: <span className="font-medium">{capability.target}</span>
-                            </span>
-                            <span className="font-bold">{capability.current}/100</span>
+                          <div className="text-right">
+                            <div className="text-3xl font-bold text-blue-600">{capability.current}</div>
+                            <div className="text-sm text-slate-500">/ 100</div>
                           </div>
                         </div>
-                        <div className="space-y-2">
-                          <Progress value={capability.current} className="h-2" />
-                          <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>Baseline ({capability.baseline})</span>
-                            <span>Target ({capability.target})</span>
+                        
+                        <div className="space-y-3">
+                          <div className="relative">
+                            <Progress value={capability.current} className="h-3 bg-slate-200" />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-xs font-semibold text-slate-700">{capability.current}%</span>
+                            </div>
+                          </div>
+                          
+                          <div className="flex justify-between text-sm">
+                            <div className="flex items-center gap-4">
+                              <span className="text-slate-600">
+                                Baseline: <span className="font-semibold text-amber-600">{capability.baseline}</span>
+                              </span>
+                              <span className="text-slate-600">
+                                Target: <span className="font-semibold text-green-600">{capability.target}</span>
+                              </span>
+                            </div>
+                            <div className="text-slate-600">
+                              Gap: <span className="font-semibold text-red-600">{capability.target - capability.current}</span> points
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -378,49 +453,82 @@ export default function EvaluationReports() {
             </TabsContent>
 
             <TabsContent value="capabilities" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="font-space-grotesk">Capability Performance Comparison</CardTitle>
-                  <CardDescription>Current vs target performance across all capabilities</CardDescription>
+              <Card className="border-2 border-slate-200 shadow-lg">
+                <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b">
+                  <CardTitle className="font-space-grotesk text-xl">Capability Performance Comparison</CardTitle>
+                  <CardDescription className="text-slate-600">Current vs target performance across all capabilities</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={400}>
-                    <BarChart data={capabilityBarData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="baseline" fill="hsl(var(--muted-foreground))" name="Baseline" />
-                      <Bar dataKey="current" fill="hsl(var(--primary))" name="Current" />
-                      <Bar dataKey="target" fill="hsl(var(--secondary))" name="Target" />
+                <CardContent className="p-6">
+                  <ResponsiveContainer width="100%" height={450}>
+                    <BarChart data={capabilityBarData} margin={{ top: 20, right: 30, left: 20, bottom: 80 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis 
+                        dataKey="name" 
+                        angle={-45} 
+                        textAnchor="end" 
+                        height={100}
+                        tick={{ fontSize: 12, fill: '#64748b' }}
+                        interval={0}
+                      />
+                      <YAxis 
+                        domain={[0, 100]}
+                        tick={{ fontSize: 12, fill: '#64748b' }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <Tooltip 
+                        contentStyle={{
+                          backgroundColor: 'white',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                        }}
+                      />
+                      <Bar dataKey="baseline" fill="#f59e0b" name="Baseline" radius={[2, 2, 0, 0]} />
+                      <Bar dataKey="current" fill="#3b82f6" name="Current" radius={[2, 2, 0, 0]} />
+                      <Bar dataKey="target" fill="#10b981" name="Target" radius={[2, 2, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {selectedReport.capabilities.map((capability, index) => (
-                  <Card key={index}>
-                    <CardHeader>
-                      <CardTitle className="font-space-grotesk text-lg">{capability.capability}</CardTitle>
+                  <Card key={index} className="border-2 border-slate-200 shadow-lg hover:shadow-xl transition-shadow">
+                    <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b pb-3">
+                      <CardTitle className="font-space-grotesk text-lg text-slate-900">{capability.capability}</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="p-6 space-y-4">
                       <div className="text-center">
-                        <div className="text-3xl font-bold mb-2">{capability.current}</div>
-                        <Progress value={capability.current} className="h-3" />
+                        <div className="text-4xl font-bold text-blue-600 mb-2">{capability.current}</div>
+                        <div className="w-full bg-slate-200 rounded-full h-3 mb-2">
+                          <div 
+                            className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500"
+                            style={{ width: `${capability.current}%` }}
+                          ></div>
+                        </div>
+                        <div className="text-sm text-slate-500">Current Performance</div>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Baseline: {capability.baseline}</span>
-                        <span className="text-muted-foreground">Target: {capability.target}</span>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-600">Baseline:</span>
+                          <span className="font-semibold text-amber-600">{capability.baseline}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-600">Target:</span>
+                          <span className="font-semibold text-green-600">{capability.target}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-600">Gap:</span>
+                          <span className="font-semibold text-red-600">{capability.target - capability.current}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-center gap-2">
+                      
+                      <div className="flex items-center justify-center gap-2 pt-2 border-t border-slate-200">
                         {getTrendIcon(capability.trend)}
-                        <span className="text-sm font-medium">
-                          {capability.trend === "up"
-                            ? "Improving"
-                            : capability.trend === "down"
-                              ? "Declining"
-                              : "Stable"}
+                        <span className="text-sm font-medium text-slate-700">
+                          {capability.trend === "up" ? "Improving" : capability.trend === "down" ? "Declining" : "Stable"}
                         </span>
                       </div>
                     </CardContent>
@@ -430,54 +538,120 @@ export default function EvaluationReports() {
             </TabsContent>
 
             <TabsContent value="trends" className="space-y-6">
-              <div className="flex items-center gap-4">
-                <Select value={timeRange} onValueChange={setTimeRange}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="last-week">Last Week</SelectItem>
-                    <SelectItem value="last-month">Last Month</SelectItem>
-                    <SelectItem value="last-quarter">Last Quarter</SelectItem>
-                    <SelectItem value="last-year">Last Year</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <h3 className="text-xl font-semibold text-slate-900">Performance Trends</h3>
+                  <Select value={timeRange} onValueChange={setTimeRange}>
+                    <SelectTrigger className="w-48 border-2 border-slate-200">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="last-week">Last Week</SelectItem>
+                      <SelectItem value="last-month">Last Month</SelectItem>
+                      <SelectItem value="last-quarter">Last Quarter</SelectItem>
+                      <SelectItem value="last-year">Last Year</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-slate-600">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <span>Overall</span>
+                  <div className="w-3 h-3 bg-green-500 rounded-full ml-4"></div>
+                  <span>Likeness</span>
+                  <div className="w-3 h-3 bg-purple-500 rounded-full ml-4"></div>
+                  <span>Art Style</span>
+                  <div className="w-3 h-3 bg-orange-500 rounded-full ml-4"></div>
+                  <span>Material</span>
+                  <div className="w-3 h-3 bg-red-500 rounded-full ml-4"></div>
+                  <span>Technical</span>
+                </div>
               </div>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="font-space-grotesk">Performance Trends</CardTitle>
-                  <CardDescription>Historical performance across all capabilities</CardDescription>
+              <Card className="border-2 border-slate-200 shadow-lg">
+                <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b">
+                  <CardTitle className="font-space-grotesk text-xl">Performance Trends Over Time</CardTitle>
+                  <CardDescription className="text-slate-600">Historical performance across all capabilities</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={400}>
-                    <LineChart data={historicalData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip />
-                      <Line
-                        type="monotone"
-                        dataKey="overall"
-                        stroke="hsl(var(--primary))"
-                        strokeWidth={3}
-                        name="Overall"
+                <CardContent className="p-6">
+                  <ResponsiveContainer width="100%" height={450}>
+                    <LineChart data={historicalData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis 
+                        dataKey="date" 
+                        tick={{ fontSize: 12, fill: '#64748b' }}
+                        axisLine={false}
+                        tickLine={false}
                       />
-                      <Line type="monotone" dataKey="visual" stroke="hsl(var(--chart-1))" name="Visual Quality" />
-                      <Line type="monotone" dataKey="geometric" stroke="hsl(var(--chart-2))" name="Geometric" />
-                      <Line type="monotone" dataKey="language" stroke="hsl(var(--chart-3))" name="Language" />
-                      <Line type="monotone" dataKey="coherence" stroke="hsl(var(--chart-4))" name="Coherence" />
+                      <YAxis 
+                        domain={[60, 100]}
+                        tick={{ fontSize: 12, fill: '#64748b' }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <Tooltip 
+                        contentStyle={{
+                          backgroundColor: 'white',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                        }}
+                      />
+                      <Line
+                        type="linear"
+                        dataKey="overall"
+                        stroke="#3b82f6"
+                        strokeWidth={4}
+                        name="Overall"
+                        dot={{ fill: '#3b82f6', strokeWidth: 2, r: 6 }}
+                        activeDot={{ r: 8, stroke: '#3b82f6', strokeWidth: 2 }}
+                      />
+                      <Line 
+                        type="linear" 
+                        dataKey="likeness" 
+                        stroke="#10b981" 
+                        strokeWidth={3}
+                        name="Likeness & Appeal" 
+                        dot={{ fill: '#10b981', strokeWidth: 2, r: 5 }}
+                        activeDot={{ r: 7, stroke: '#10b981', strokeWidth: 2 }}
+                      />
+                      <Line 
+                        type="linear" 
+                        dataKey="artStyle" 
+                        stroke="#8b5cf6" 
+                        strokeWidth={3}
+                        name="Art Style" 
+                        dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 5 }}
+                        activeDot={{ r: 7, stroke: '#8b5cf6', strokeWidth: 2 }}
+                      />
+                      <Line 
+                        type="linear" 
+                        dataKey="material" 
+                        stroke="#f59e0b" 
+                        strokeWidth={3}
+                        name="Material Expression" 
+                        dot={{ fill: '#f59e0b', strokeWidth: 2, r: 5 }}
+                        activeDot={{ r: 7, stroke: '#f59e0b', strokeWidth: 2 }}
+                      />
+                      <Line 
+                        type="linear" 
+                        dataKey="technical" 
+                        stroke="#ef4444" 
+                        strokeWidth={3}
+                        name="Technical Quality" 
+                        dot={{ fill: '#ef4444', strokeWidth: 2, r: 5 }}
+                        activeDot={{ r: 7, stroke: '#ef4444', strokeWidth: 2 }}
+                      />
                     </LineChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="font-space-grotesk">Improvement Areas</CardTitle>
-                  <CardDescription>Capabilities that need attention</CardDescription>
+              <Card className="border-2 border-slate-200 shadow-lg">
+                <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b">
+                  <CardTitle className="font-space-grotesk text-xl">Improvement Areas</CardTitle>
+                  <CardDescription className="text-slate-600">Capabilities that need attention</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-6">
                   <div className="space-y-4">
                     {selectedReport.capabilities
                       .filter((cap) => cap.current < cap.target)
@@ -485,17 +659,30 @@ export default function EvaluationReports() {
                       .map((capability, index) => (
                         <div
                           key={index}
-                          className="flex items-center justify-between p-4 border border-border rounded-lg"
+                          className="flex items-center justify-between p-6 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-xl shadow-sm"
                         >
-                          <div>
-                            <h4 className="font-medium">{capability.capability}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              Gap: {capability.target - capability.current} points to target
-                            </p>
+                          <div className="flex items-center gap-4">
+                            <div className="p-3 bg-red-100 rounded-full">
+                              <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                {index + 1}
+                              </div>
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-lg text-slate-900">{capability.capability}</h4>
+                              <p className="text-sm text-slate-600">
+                                Gap: <span className="font-semibold text-red-600">{capability.target - capability.current}</span> points to target
+                              </p>
+                            </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-lg font-bold">{capability.current}/100</div>
-                            <div className="text-sm text-muted-foreground">Target: {capability.target}</div>
+                            <div className="text-2xl font-bold text-red-600">{capability.current}/100</div>
+                            <div className="text-sm text-slate-600">Target: {capability.target}</div>
+                            <div className="w-24 bg-slate-200 rounded-full h-2 mt-2">
+                              <div 
+                                className="bg-gradient-to-r from-red-500 to-red-600 h-2 rounded-full"
+                                style={{ width: `${capability.current}%` }}
+                              ></div>
+                            </div>
                           </div>
                         </div>
                       ))}
