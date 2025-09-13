@@ -761,10 +761,10 @@ Can you help me understand this dimension better and suggest specific evaluation
                       <button
                         key={template.id}
                         onClick={() => handleChatTemplateClick(template)}
-                        className="px-2 py-1 bg-white border border-slate-300 rounded-lg text-xs text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-colors font-medium"
+                        className="inline-flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-md text-sm text-slate-700 hover:bg-slate-50 hover:border-blue-300 hover:text-blue-600 transition-all duration-200 font-medium"
                       >
                         {template.icon}
-                        <span className="ml-1">{template.label}</span>
+                        <span>{template.label}</span>
                       </button>
                     ))}
                   </div>
@@ -857,14 +857,14 @@ Can you help me understand this dimension better and suggest specific evaluation
                       ))}
                   </div>
 
-                  <div className="flex justify-end pt-8 border-t border-slate-200 mt-8">
-                    <Button
+                  <div className="flex justify-center pt-8 border-t border-slate-200 mt-8">
+                    <button
                       onClick={handleConfirmBlueprint}
-                      size="lg"
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-8"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 rounded-lg text-lg font-semibold transition-all duration-200 hover:shadow-lg hover:scale-105 flex items-center gap-3"
                     >
-                      Confirm Blueprint <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
+                      <span>Confirm Blueprint</span>
+                      <ArrowRight className="h-5 w-5" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -898,7 +898,7 @@ Can you help me understand this dimension better and suggest specific evaluation
       
       {/* Delete Confirmation Modal */}
       {showDeleteModal && deleteTarget && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50 backdrop-blur-sm">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">

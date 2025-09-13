@@ -538,7 +538,7 @@ Which capability dimension would you like to focus on, and what specific changes
                 <button
                   onClick={handleSendMessage}
                   disabled={!chatInput.trim()}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+                  className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-md flex-shrink-0"
                 >
                   <Send className="h-4 w-4" />
                 </button>
