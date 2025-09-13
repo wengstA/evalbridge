@@ -40,80 +40,39 @@ interface BlueprintCard {
 
 const templates = [
   {
-    id: "ideal-output",
-    title: "Ideal Output Definition",
-    description: "Define description perfect model outputs should look like for your use case",
+    id: "new-product-definition",
+    title: "New Product Definition (0-to-1)",
+    description: "For a brand new concept. Deconstruct a \"fuzzy\" idea into its foundational technical specifications and acceptance criteria.",
     icon: <Lightbulb />,
-    prompt: `I need to build an evaluation system for the new feature [Feature Name].
-
-The core scenario is [describe your main use case].
-
-Help me define:
-1. What does the ideal output look like?
-2. What are the key quality dimensions I should measure?
-3. What are the common failure modes I need to prevent?
-4. How should I structure my evaluation criteria?
-
-Please provide specific, measurable criteria that I can use to evaluate model performance.`,
+    prompt: `Product: An iOS app that turns user selfies into stylized, Q-version 3D-printable figurines.
+Ideal Function: It must capture the user's core identity and "essence"—it must look like *them*, not just a generic doll. It also needs to be artistically "charming."
+Key Constraint: The final generated 3D model output must be geometrically watertight (manifold) for 3D printing partners.`,
   },
   {
-    id: "user-feedback",
-    title: "User Feedback Analysis",
-    description: "Analyze user complaints and feedback to identify improvement areas",
-    icon: <MessageSquare />,
-    prompt: `I have collected user feedback about [Feature/Product Name] and need help analyzing it to identify technical requirements.
-
-Here's the feedback I've gathered:
-[Paste your user feedback, complaints, or support tickets here]
-
-Please help me:
-1. Identify the main user pain points and categorize them
-2. Translate user complaints into technical requirements
-3. Prioritize issues based on user impact and frequency
-4. Suggest specific evaluation metrics to track improvements
-5. Define acceptance criteria for each identified issue
-
-Focus on actionable insights that can guide product and engineering decisions.`,
-  },
-  {
-    id: "competitor-analysis",
-    title: "Competitor Analysis",
-    description: "Compare your model performance against competitors and benchmarks",
+    id: "competitive-bakeoff",
+    title: "Competitive Model Bake-off",
+    description: "Create a precise, quantitative scorecard to scientifically compare your internal model against a competitor or a new vendor.",
     icon: <BarChart3 />,
-    prompt: `I want to benchmark [Your Product/Feature] against competitors in [Market/Domain].
-
-Key competitors I'm analyzing:
-- [Competitor 1]
-- [Competitor 2]
-- [Competitor 3]
-
-Help me:
-1. Define evaluation criteria that matter for competitive positioning
-2. Identify key differentiators and performance gaps
-3. Set target performance levels based on market standards
-4. Create evaluation frameworks for head-to-head comparisons
-5. Suggest metrics that highlight our unique value proposition
-
-Focus on measurable criteria that can guide product strategy and positioning.`,
+    prompt: `Goal: Prove our new internal 'Stylizer-V4' model is quantifiably better than 'Competitor-X' and our old 'Stylizer-V3'.
+Product: 3D asset generation pipeline for game environments.
+Key Vectors: V4 must generate assets that are 1) Hyper-realistic (superior PBR texture maps), 2) Optimized (lower VRAM footprint), and 3) 40% faster at inference than competitors.`,
   },
   {
-    id: "model-iteration",
-    title: "Model Iteration Eval",
-    description: "Set up evaluation frameworks for iterative model improvements",
+    id: "targeted-regression",
+    title: "Targeted Problem Regression",
+    description: "Users are complaining about a specific failure. Create a focused micro-evaluation framework to diagnose, trap, and fix it.",
+    icon: <MessageSquare />,
+    prompt: `Product: AI Text-to-Video Generator.
+The Problem: Live user feedback states our "generated hands look like spaghetti" and that "motion tracking is jittery in high-action scenes."
+Goal: We need hyper-specific metrics to measure 1) Anatomical correctness of generated hands/limbs, and 2) Temporal motion stability and object permanence between frames.`,
+  },
+  {
+    id: "next-gen-iteration",
+    title: "Next-Gen Iteration Planning (N-to-N+1)",
+    description: "Your V1 is shipped and stable. Define the next set of technical targets and higher standards for the algorithm roadmap.",
     icon: <RefreshCw />,
-    prompt: `I'm working on iterative improvements for [Model/Feature Name] and need to establish evaluation frameworks.
-
-Current model version: [Version/Description]
-Key areas for improvement: [List main areas]
-
-Help me design:
-1. Regression testing criteria to ensure new versions don't break existing functionality
-2. Progressive evaluation metrics to measure incremental improvements
-3. A/B testing frameworks for comparing model versions
-4. Automated evaluation pipelines for continuous assessment
-5. Success criteria for each iteration cycle
-
-Focus on scalable evaluation approaches that can guide iterative development.`,
+    prompt: `Current State: Our 'CityGen-V1' model generates realistic 3D city blocks, but they feel sterile and empty (the "ghost town" problem).
+Next Goal (V2): We must add "Dynamic Life Simulation." We need an entirely new evaluation framework to measure the quality of simulated pedestrian behavior, traffic patterns, and environmental interactions that make the city feel "alive" and believable.`,
   },
 ]
 
@@ -830,11 +789,10 @@ Can you help me understand this dimension better and suggest specific evaluation
           <div className="max-w-4xl mx-auto px-8 py-12">
             <div className="text-center space-y-4 mb-12">
               <h2 className="text-4xl font-bold text-slate-900 mb-2">
-                What do you want to evaluate from your model?
+                From Product Vision to Quantified Metrics
               </h2>
               <p className="text-slate-600 text-lg max-w-2xl mx-auto">
-                Describe your evaluation goals and we'll help you design the perfect assessment framework with
-                AI-powered insights
+                Describe your ideal product state. Our Domain-Expert Agent will deconstruct your vision into a complete, quantifiable evaluation matrix—bridging the gap between design and engineering.
               </p>
             </div>
 
@@ -844,7 +802,7 @@ Can you help me understand this dimension better and suggest specific evaluation
                 <div className="space-y-4">
                   <Textarea
                     ref={textareaRef}
-                    placeholder="I want to evaluate a new feature for [Product Name]. The feature is [describe the feature]. I need to understand if users would find this valuable, how they would use it, and description concerns they might have..."
+                    placeholder='Start here: Describe your product, its users, and what "perfect" looks like. Or, start with a template...'
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     rows={8}
