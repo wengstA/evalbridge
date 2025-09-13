@@ -205,6 +205,10 @@ export default function RequirementsAnalysis() {
   const [availableExperts, setAvailableExperts] = useState<any>({})
   const [expertsLoaded, setExpertsLoaded] = useState(false)
   const [showExpertSelector, setShowExpertSelector] = useState(false)
+  const [splitterWidth, setSplitterWidth] = useState(448) // 28rem = 448px
+  const [isDragging, setIsDragging] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<{id: string, title: string} | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const chatInputRef = useRef<HTMLTextAreaElement>(null)
 
@@ -236,6 +240,49 @@ export default function RequirementsAnalysis() {
       chatInputRef.current.style.height = Math.min(chatInputRef.current.scrollHeight, 150) + 'px'
     }
   }, [chatInput])
+
+  // Splitter drag handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true)
+    e.preventDefault()
+  }
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isDragging) return
+    
+    const newWidth = e.clientX
+    const minWidth = 300
+    const maxWidth = window.innerWidth * 0.6
+    
+    if (newWidth >= minWidth && newWidth <= maxWidth) {
+      setSplitterWidth(newWidth)
+    }
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+  }
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+      document.body.style.cursor = 'col-resize'
+      document.body.style.userSelect = 'none'
+    } else {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+  }, [isDragging])
 
   const handleTemplateClick = (template: (typeof templates)[0]) => {
     setInputText(template.prompt)
@@ -508,18 +555,85 @@ Can you help me understand this dimension better and suggest specific evaluation
     navigateToStep("eval-planning")
   }
 
+  // Delete confirmation handlers
+  const handleDeleteClick = (card: BlueprintCard) => {
+    setDeleteTarget({ id: card.id, title: card.title })
+    setShowDeleteModal(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return
+    
+    const result = await deleteCapability(deleteTarget.id)
+    if (result.success) {
+      // Show success toast
+      showDeleteToast(`Successfully deleted "${deleteTarget.title}" capability`)
+      
+      const successMessage: ChatMessage = {
+        id: Date.now().toString(),
+        type: "agent",
+        content: `Successfully deleted the "${deleteTarget.title}" capability from your evaluation blueprint.`,
+        timestamp: new Date(),
+      }
+      setChatMessages((prev) => [...prev, successMessage])
+    }
+    
+    setShowDeleteModal(false)
+    setDeleteTarget(null)
+  }
+
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false)
+    setDeleteTarget(null)
+  }
+
+  // Toast notification
+  const showDeleteToast = (message: string) => {
+    // Create toast element
+    const toast = document.createElement('div')
+    toast.className = 'fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full'
+    toast.textContent = message
+    
+    // Add icon
+    const icon = document.createElement('div')
+    icon.className = 'inline-flex items-center gap-2'
+    icon.innerHTML = `
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+      ${message}
+    `
+    toast.appendChild(icon)
+    
+    document.body.appendChild(toast)
+    
+    // Animate in
+    setTimeout(() => {
+      toast.classList.remove('translate-x-full')
+    }, 100)
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+      toast.classList.add('translate-x-full')
+      setTimeout(() => {
+        document.body.removeChild(toast)
+      }, 300)
+    }, 3000)
+  }
+
   if (showBlueprint) {
     return (
-      <div className="flex h-screen bg-slate-50">
+      <>
+        <div className="flex h-screen bg-slate-50">
         <Sidebar />
 
         <main className="flex-1 overflow-hidden flex flex-col ml-16">
           <header className="bg-white border-b border-slate-200 px-8 py-6 sticky top-0 z-10 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="font-bold text-slate-900 font-space-grotesk text-2xl">Requirements Analysis</h1>
+                <h1 className="font-bold text-slate-900 font-space-grotesk text-2xl">AI Model Evaluation Blueprint</h1>
                 <p className="text-slate-600 mt-1 text-lg">
-                  Define evaluation criteria and success metrics for your AI model
+                  Define evaluation criteria  for your AI model
                 </p>
               </div>
               <ProjectSelector />
@@ -527,7 +641,11 @@ Can you help me understand this dimension better and suggest specific evaluation
           </header>
 
           <div className="flex flex-1 overflow-hidden">
-            <div className="w-96 bg-white border-r border-slate-200 flex flex-col shadow-lg">
+            {/* Chat Interface */}
+            <div 
+              className="bg-white border-r border-slate-200 flex flex-col shadow-lg"
+              style={{ width: `${splitterWidth}px`, minWidth: '300px' }}
+            >
               <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-100 rounded-lg">
@@ -663,7 +781,7 @@ Can you help me understand this dimension better and suggest specific evaluation
                         handleSendMessage()
                       }
                     }}
-                    placeholder="Ask about evaluation dimensions, suggest improvements..."
+                    placeholder="Ask about evaluation dimensions..."
                     className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none min-h-[40px] max-h-[120px] overflow-y-auto"
                     rows={1}
                   />
@@ -678,11 +796,24 @@ Can you help me understand this dimension better and suggest specific evaluation
               </div>
             </div>
 
-            <div className="flex-1 overflow-auto bg-white">
+            {/* Splitter Drag Handle */}
+            <div
+              className={`w-1 bg-slate-300 hover:bg-blue-400 cursor-col-resize transition-colors duration-200 flex-shrink-0 ${
+                isDragging ? 'bg-blue-500' : ''
+              }`}
+              onMouseDown={handleMouseDown}
+            >
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="w-0.5 h-8 bg-slate-400 rounded-full"></div>
+              </div>
+            </div>
+
+            {/* Blueprint Area */}
+            <div className="flex-1 overflow-auto" style={{backgroundColor: '#f0f0f0'}}>
               <div className="max-w-7xl mx-auto px-8 py-8">
                 <div className="space-y-6">
                   <div className="flex justify-between items-center mb-6">
-                    <div>
+                    {/* <div>
                       <h2 className="text-2xl font-bold text-slate-900 mb-2">
                         AI Model Evaluation Blueprint
                       </h2>
@@ -695,17 +826,7 @@ Can you help me understand this dimension better and suggest specific evaluation
                           </span>
                         )}
                       </p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setChatInput("I want to add a new capability to my evaluation framework. Can you help me identify what's missing and suggest a new capability dimension?");
-                        chatInputRef.current?.focus();
-                      }}
-                      className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                    >
-                      + Add New Capability
-                    </Button>
+                    </div> */}
                   </div>
 
                   <div className="space-y-6">
@@ -730,20 +851,7 @@ Can you help me understand this dimension better and suggest specific evaluation
                                         setChatInput(`I want to modify the "${card.title}" capability. Can you help me improve it?`);
                                         chatInputRef.current?.focus();
                                       }}
-                          onDelete={async () => {
-                                        if (confirm(`Are you sure you want to delete "${card.title}"?`)) {
-                                          const result = await deleteCapability(card.id);
-                                          if (result.success) {
-                                            const successMessage: ChatMessage = {
-                                              id: Date.now().toString(),
-                                              type: "agent",
-                                              content: `Successfully deleted the "${card.title}" capability from your evaluation blueprint.`,
-                                              timestamp: new Date(),
-                                            };
-                                            setChatMessages((prev) => [...prev, successMessage]);
-                                          }
-                                        }
-                                      }}
+                          onDelete={() => handleDeleteClick(card)}
                           onPriorityChange={(priority) => handlePriorityChange(card.id, priority)}
                         />
                       ))}
@@ -763,7 +871,69 @@ Can you help me understand this dimension better and suggest specific evaluation
             </div>
           </div>
         </main>
+        
+        {/* Ant Design FloatButton */}
+        <div className="fixed bottom-6 right-6 z-50">
+          <button
+            onClick={() => {
+              setChatInput("I want to add a new capability to my evaluation framework. Can you help me identify what's missing and suggest a new capability dimension?");
+              chatInputRef.current?.focus();
+            }}
+            className="w-14 h-14 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
+            style={{
+              boxShadow: '0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05)'
+            }}
+          >
+            <svg 
+              className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+        </div>
       </div>
+      
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && deleteTarget && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                <Trash2 className="w-5 h-5 text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Delete Capability</h3>
+                <p className="text-sm text-gray-600">This action cannot be undone</p>
+              </div>
+            </div>
+            
+            <p className="text-gray-700 mb-6">
+              Are you sure you want to delete <span className="font-semibold">"{deleteTarget?.title}"</span> capability? 
+              This will remove it from your evaluation blueprint permanently.
+            </p>
+            
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={handleDeleteCancel}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors duration-200 flex items-center gap-2"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      </>
     )
   }
 

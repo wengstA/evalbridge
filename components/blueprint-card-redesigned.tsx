@@ -67,14 +67,40 @@ const renderMarkdown = (text: string) => {
 }
 
 // 技术因素的标签配置，使用彩色标签
+// Ant Design Colorful Tag 样式映射
+const getAntdTagStyle = (color: string) => {
+  const styles = {
+    magenta: "bg-pink-100 text-pink-800 border border-pink-200",
+    red: "bg-red-100 text-red-800 border border-red-200",
+    volcano: "bg-orange-100 text-orange-800 border border-orange-200",
+    orange: "bg-orange-100 text-orange-800 border border-orange-200",
+    gold: "bg-yellow-100 text-yellow-800 border border-yellow-200",
+    lime: "bg-lime-100 text-lime-800 border border-lime-200",
+    green: "bg-green-100 text-green-800 border border-green-200",
+    cyan: "bg-cyan-100 text-cyan-800 border border-cyan-200",
+    blue: "bg-blue-100 text-blue-800 border border-blue-200",
+    geekblue: "bg-indigo-100 text-indigo-800 border border-indigo-200",
+    purple: "bg-purple-100 text-purple-800 border border-purple-200",
+    pink: "bg-pink-100 text-pink-800 border border-pink-200",
+  }
+  return styles[color as keyof typeof styles] || "bg-gray-100 text-gray-800 border border-gray-200"
+}
+
 const getTechnicalFactorTags = (factors: string[]) => {
+  // Ant Design Colorful Tag colors
   const colors = [
-    { color: "bg-blue-500 hover:bg-blue-600", explanation: "Core technical capability" },
-    { color: "bg-purple-500 hover:bg-purple-600", explanation: "Advanced feature processing" },
-    { color: "bg-red-500 hover:bg-red-600", explanation: "Critical system component" },
-    { color: "bg-orange-500 hover:bg-orange-600", explanation: "Performance optimization" },
-    { color: "bg-teal-500 hover:bg-teal-600", explanation: "Quality assurance" },
-    { color: "bg-green-500 hover:bg-green-600", explanation: "AI/ML enhancement" },
+    { color: "magenta", explanation: "Core technical capability" },
+    { color: "red", explanation: "Critical system component" },
+    { color: "volcano", explanation: "Performance optimization" },
+    { color: "orange", explanation: "Advanced feature processing" },
+    { color: "gold", explanation: "Quality assurance" },
+    { color: "lime", explanation: "AI/ML enhancement" },
+    { color: "green", explanation: "Data processing" },
+    { color: "cyan", explanation: "Algorithm optimization" },
+    { color: "blue", explanation: "System architecture" },
+    { color: "geekblue", explanation: "Machine learning" },
+    { color: "purple", explanation: "Neural networks" },
+    { color: "pink", explanation: "User experience" },
   ]
   
   return factors.map((factor, index) => ({
@@ -115,7 +141,7 @@ export function BlueprintCardRedesigned({
 
   return (
     <TooltipProvider>
-      <Card className="p-6 bg-white shadow-lg">
+      <Card className="p-6 bg-white shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -125,24 +151,28 @@ export function BlueprintCardRedesigned({
             <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
           </div>
           <div className="relative">
-            <Badge
-              className={`${priorityLevels[currentPriorityIndex].color} ${priorityLevels[currentPriorityIndex].textColor} cursor-pointer transition-colors duration-200 flex items-center gap-1`}
+            <div
+              className={`${priorityLevels[currentPriorityIndex].color} ${priorityLevels[currentPriorityIndex].textColor} cursor-pointer transition-all duration-200 flex items-center gap-1 px-3 py-1 rounded-md text-sm font-medium hover:opacity-80`}
               onClick={togglePriorityDropdown}
             >
               {priorityLevels[currentPriorityIndex].name} Priority
-              <ChevronDown className="w-3 h-3" />
-            </Badge>
+              <ChevronDown className="w-3 h-3 transition-transform duration-200" style={{
+                transform: showPriorityDropdown ? 'rotate(180deg)' : 'rotate(0deg)'
+              }} />
+            </div>
             {showPriorityDropdown && (
-              <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-10 min-w-[120px]">
+              <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl z-50 min-w-[140px] py-1" style={{
+                boxShadow: '0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05)'
+              }}>
                 {priorityLevels.map((priorityLevel, index) => (
                   <button
                     key={index}
-                    className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 first:rounded-t-md last:rounded-b-md ${
-                      index === currentPriorityIndex ? "bg-gray-100" : ""
+                    className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors duration-150 flex items-center ${
+                      index === currentPriorityIndex ? "bg-blue-50 text-blue-600" : "text-gray-700"
                     }`}
                     onClick={() => handlePrioritySelect(index)}
                   >
-                    <span className={`inline-block w-2 h-2 rounded-full mr-2 ${priorityLevel.color.split(" ")[0]}`}></span>
+                    <span className={`inline-block w-2 h-2 rounded-full mr-3 ${priorityLevel.color.split(" ")[0]}`}></span>
                     {priorityLevel.name} Priority
                   </button>
                 ))}
@@ -167,7 +197,7 @@ export function BlueprintCardRedesigned({
 
         {/* User Value */}
         <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">User Value</h2>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">User Value</h2>
           <div className="flex items-center gap-2 text-gray-600">
             <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
             <span>{renderMarkdown(userValue)}</span>
@@ -179,9 +209,11 @@ export function BlueprintCardRedesigned({
           {technicalFactorTags.map((tag, index) => (
             <Tooltip key={index}>
               <TooltipTrigger asChild>
-                <Badge className={`${tag.color} text-white cursor-help transition-colors duration-200`}>
+                <span 
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-help transition-all duration-200 hover:scale-105 ${getAntdTagStyle(tag.color)}`}
+                >
                   {tag.name}
-                </Badge>
+                </span>
               </TooltipTrigger>
               <TooltipContent>
                 <p className="max-w-xs">{tag.explanation}</p>
@@ -241,39 +273,29 @@ export function BlueprintCardRedesigned({
           </div>
         </div>
 
-        {/* Ask Agent Button */}
+        {/* Action Buttons */}
         <div className="flex items-center justify-end gap-2">
-          <Button 
-            className="w-1/4 text-white font-semibold py-3 transition-colors duration-200"
-            style={{ 
-              backgroundColor: 'oklch(0.478,0.166,271.78)',
-            } as React.CSSProperties}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'oklch(0.45,0.166,271.78)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'oklch(0.478,0.166,271.78)'
-            }}
+          <button 
+            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-md transition-all duration-200 hover:shadow-md flex items-center gap-2"
             onClick={onAskAgent}
           >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
             Ask Agent
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-gray-400 hover:text-gray-600"
+          </button>
+          <button 
+            className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-md transition-all duration-200"
             onClick={onEdit}
           >
             <Edit className="w-4 h-4" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-gray-400 hover:text-gray-600"
+          </button>
+          <button 
+            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all duration-200"
             onClick={onDelete}
           >
             <Trash2 className="w-4 h-4" />
-          </Button>
+          </button>
         </div>
       </Card>
     </TooltipProvider>
