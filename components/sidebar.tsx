@@ -21,18 +21,11 @@ const tailoredMetricsSteps: NavigationStep[] = [
   { id: "requirements-analysis", name: "Requirements Analysis", href: "/feedback-analysis", icon: FileText, step: 1 },
   { id: "eval-set-up", name: "Eval Set Up", href: "/eval-planning", icon: Target, step: 2 },
   {
-    id: "evaluation-overview",
-    name: "Evaluation Overview",
-    href: "/eval-planning/overview",
-    icon: FileText,
-    step: 3,
-  },
-  {
     id: "eval-set-input-setup",
     name: "Eval Set Input Set Up",
     href: "/eval-set-input-setup",
     icon: Target,
-    step: 4,
+    step: 3,
   },
 ]
 
@@ -43,7 +36,7 @@ const dataEngineSteps: NavigationStep[] = [
 ]
 
 const performanceSteps: NavigationStep[] = [
-  { id: "reports", name: "Reports", href: "/reports", icon: BarChart3, step: 5 },
+  { id: "reports", name: "Reports", href: "/reports", icon: BarChart3, step: 4 },
 ]
 
 const navigationSections = [

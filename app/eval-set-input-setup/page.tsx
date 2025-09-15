@@ -443,7 +443,7 @@ Which capability dimension would you like to focus on, and what specific changes
       case "Hard":
         return "bg-red-100 text-red-800 border-red-200"
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+        return "bg-muted text-muted-foreground border-border"
     }
   }
 
@@ -487,8 +487,8 @@ Which capability dimension would you like to focus on, and what specific changes
           >
             <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Bot className="h-5 w-5 text-blue-600" />
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Bot className="h-5 w-5 text-primary" />
                 </div>
                 <div>
                   <h2 className="font-semibold text-slate-900 text-lg">Eval Strategy Agent</h2>
@@ -503,7 +503,7 @@ Which capability dimension would you like to focus on, and what specific changes
                   <div
                     className={`max-w-[85%] rounded-lg p-3 shadow-sm ${
                       message.type === "user"
-                        ? "bg-blue-600 text-white"
+                        ? "bg-primary text-primary-foreground"
                         : "bg-white text-slate-900 border border-slate-200"
                     }`}
                   >
@@ -538,7 +538,7 @@ Which capability dimension would you like to focus on, and what specific changes
                 <button
                   onClick={handleSendMessage}
                   disabled={!chatInput.trim()}
-                  className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-md flex-shrink-0"
+                  className="inline-flex items-center justify-center px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-md flex-shrink-0"
                 >
                   <Send className="h-4 w-4" />
                 </button>
@@ -548,8 +548,8 @@ Which capability dimension would you like to focus on, and what specific changes
 
           {/* Splitter Drag Handle */}
           <div
-            className={`w-1 bg-slate-300 hover:bg-blue-400 cursor-col-resize transition-colors duration-200 flex-shrink-0 ${
-              isDragging ? 'bg-blue-500' : ''
+            className={`w-1 bg-slate-300 hover:bg-primary/60 cursor-col-resize transition-colors duration-200 flex-shrink-0 ${
+              isDragging ? 'bg-primary' : ''
             }`}
             onMouseDown={handleMouseDown}
           >
@@ -571,7 +571,7 @@ Which capability dimension would you like to focus on, and what specific changes
                         onClick={() => setActiveTab(plan.id)}
                         className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex items-center gap-2 ${
                           activeTab === plan.id
-                            ? "border-blue-500 text-blue-600"
+                            ? "border-primary text-primary"
                             : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
                         }`}
                       >
@@ -684,7 +684,7 @@ Which capability dimension would you like to focus on, and what specific changes
                 <button
                   onClick={handleApproveTestSet}
                   disabled={isGenerating}
-                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isGenerating ? (
                     <>

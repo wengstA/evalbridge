@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8fafc;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #4f46e5;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .execution-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .execution-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .execution-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .execution-id {
+            font-family: 'Monaco', 'Menlo', monospace;
+            background: #f1f5f9;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #475569;
+        }
+
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status.running {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status.completed {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .status.failed {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .execution-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meta-label {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #374151;
+        }
+
+        .steps {
+            margin-top: 20px;
+        }
+
+        .step {
+            background: #f8fafc;
+            border-left: 4px solid #4f46e5;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .step-name {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .step-data {
+            font-family: 'Monaco', 'Menlo', monospace;
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: #475569;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .output {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .output-label {
+            font-weight: 600;
+            color: #0c4a6e;
+            margin-bottom: 8px;
+        }
+
+        .error {
+            background: #fef2f2;
+            border: 1px solid #f87171;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .error-label {
+            font-weight: 600;
+            color: #dc2626;
+            margin-bottom: 8px;
+        }
+
+        .refresh-btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .refresh-btn:hover {
+            background: #4338ca;
+            transform: translateY(-1px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 2px dashed #cbd5e1;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Workflow Dashboard</h1>
+            <p>Real-time monitoring of AI evaluation workflow executions</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="total-executions">0</div>
+                <div class="stat-label">Total Executions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="running-executions">0</div>
+                <div class="stat-label">Running</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completed-executions">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="failed-executions">0</div>
+                <div class="stat-label">Failed</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>📊 Execution History</h2>
+                <button class="refresh-btn" onclick="refreshData()">🔄 Refresh</button>
+                <div id="executions-container">
+                    <div class="loading">Loading executions...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let refreshInterval;
+
+        function formatTimestamp(timestamp) {
+            return new Date(timestamp).toLocaleString();
+        }
+
+        function formatDuration(startTime, endTime) {
+            if (!endTime) return 'Running...';
+            const start = new Date(startTime);
+            const end = new Date(endTime);
+            const duration = end - start;
+            return `${Math.round(duration / 1000)}s`;
+        }
+
+        function createExecutionCard(execution) {
+            const statusClass = execution.status;
+            const duration = formatDuration(execution.start_time, execution.end_time);
+            
+            let stepsHtml = '';
+            if (execution.steps && execution.steps.length > 0) {
+                stepsHtml = `
+                    <div class="steps">
+                        <h4>Steps:</h4>
+                        ${execution.steps.map(step => `
+                            <div class="step">
+                                <div class="step-name">${step.name}</div>
+                                <div class="step-data">${JSON.stringify(step.data, null, 2)}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            let outputHtml = '';
+            if (execution.output) {
+                outputHtml = `
+                    <div class="output">
+                        <div class="output-label">Output:</div>
+                        <div class="step-data">${JSON.stringify(execution.output, null, 2)}</div>
+                    </div>
+                `;
+            }
+
+            let errorHtml = '';
+            if (execution.error) {
+                errorHtml = `
+                    <div class="error">
+                        <div class="error-label">Error:</div>
+                        <div class="step-data">${execution.error}</div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="execution-card">
+                    <div class="execution-header">
+                        <div class="execution-id">${execution.id}</div>
+                        <div class="status ${statusClass}">${statusClass}</div>
+                    </div>
+                    <div class="execution-meta">
+                        <div class="meta-item">
+                            <div class="meta-label">Started</div>
+                            <div>${formatTimestamp(execution.start_time)}</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Duration</div>
+                            <div>${duration}</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Steps</div>
+                            <div>${execution.steps ? execution.steps.length : 0}</div>
+                        </div>
+                    </div>
+                    ${stepsHtml}
+                    ${outputHtml}
+                    ${errorHtml}
+                </div>
+            `;
+        }
+
+        function updateStats(data) {
+            document.getElementById('total-executions').textContent = data.total;
+            document.getElementById('running-executions').textContent = data.running;
+            document.getElementById('completed-executions').textContent = 
+                data.executions.filter(e => e.status === 'completed').length;
+            document.getElementById('failed-executions').textContent = 
+                data.executions.filter(e => e.status === 'failed').length;
+        }
+
+        function updateExecutions(data) {
+            const container = document.getElementById('executions-container');
+            
+            if (data.executions.length === 0) {
+                container.innerHTML = '<div class="no-data">No executions found</div>';
+                return;
+            }
+
+            // Sort by start time (newest first)
+            const sortedExecutions = data.executions.sort((a, b) => 
+                new Date(b.start_time) - new Date(a.start_time)
+            );
+
+            container.innerHTML = sortedExecutions.map(createExecutionCard).join('');
+        }
+
+        async function refreshData() {
+            try {
+                const response = await fetch('/api/executions');
+                const data = await response.json();
+                
+                updateStats(data);
+                updateExecutions(data);
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+                document.getElementById('executions-container').innerHTML = 
+                    '<div class="no-data">Error loading data</div>';
+            }
+        }
+
+        // Auto-refresh every 2 seconds
+        function startAutoRefresh() {
+            refreshInterval = setInterval(refreshData, 2000);
+        }
+
+        function stopAutoRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshData();
+            startAutoRefresh();
+        });
+
+        // Stop auto-refresh when page is hidden
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                stopAutoRefresh();
+            } else {
+                startAutoRefresh();
+            }
+        });
+    </script>
+</body>
+</html>

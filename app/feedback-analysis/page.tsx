@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Sidebar } from "@/components/sidebar"
 import { ProjectSelector } from "@/components/project-selector"
 import { Button } from "@/components/ui/button"
@@ -195,6 +196,7 @@ const renderMarkdown = (text: string) => {
 
 export default function RequirementsAnalysis() {
   const { navigateToStep } = useWorkflow()
+  const router = useRouter()
   const [inputText, setInputText] = useState("")
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
   const [showBlueprint, setShowBlueprint] = useState(false)
@@ -431,15 +433,15 @@ Can you help me understand this dimension better and suggest specific evaluation
   const getPriorityColor = (priority: "Critical" | "High" | "Medium" | "Low") => {
     switch (priority) {
       case "Critical":
-        return "bg-red-100 text-red-800 border-red-200"
+        return "bg-primary/10 text-primary border-primary/20"
       case "High":
-        return "bg-red-100 text-red-800 border-red-200"
+        return "bg-primary/10 text-primary border-primary/20"
       case "Medium":
-        return "bg-orange-100 text-orange-800 border-orange-200"
+        return "bg-primary/5 text-primary/80 border-primary/10"
       case "Low":
-        return "bg-green-100 text-green-800 border-green-200"
+        return "bg-primary/5 text-primary/60 border-primary/10"
       default:
-        return "bg-slate-100 text-slate-800 border-slate-200"
+        return "bg-muted text-muted-foreground border-border"
     }
   }
 
@@ -551,8 +553,8 @@ Can you help me understand this dimension better and suggest specific evaluation
   };
 
   const handleConfirmBlueprint = () => {
-    console.log("[v0] Confirming blueprint and navigating to next step")
-    navigateToStep("eval-planning")
+    console.log("[v0] Confirming blueprint and navigating to eval-planning")
+    router.push("/eval-planning")
   }
 
   // Delete confirmation handlers
@@ -591,7 +593,7 @@ Can you help me understand this dimension better and suggest specific evaluation
   const showDeleteToast = (message: string) => {
     // Create toast element
     const toast = document.createElement('div')
-    toast.className = 'fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full'
+    toast.className = 'fixed top-4 right-4 z-50 bg-primary text-primary-foreground px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full'
     toast.textContent = message
     
     // Add icon
@@ -648,8 +650,8 @@ Can you help me understand this dimension better and suggest specific evaluation
             >
               <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Bot className="h-5 w-5 text-blue-600" />
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Bot className="h-5 w-5 text-primary" />
                   </div>
                   <div>
                     <h2 className="font-semibold text-slate-900 text-lg">Multi-Expert Consultant</h2>
@@ -724,7 +726,7 @@ Can you help me understand this dimension better and suggest specific evaluation
                       <p className="text-sm text-slate-600 leading-relaxed mb-4">
                         I'm ready to help you analyze capabilities and build evaluation frameworks with multiple specialist perspectives. Click capability cards or use quick actions to start.
                       </p>
-                      <div className="text-xs text-blue-600 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                      <div className="text-xs text-primary bg-primary/5 p-3 rounded-lg border border-primary/20">
                         💡 Try: "What capabilities should I focus on?" or click any card below
                       </div>
                     </div>
@@ -735,7 +737,7 @@ Can you help me understand this dimension better and suggest specific evaluation
                       <div
                         className={`max-w-[85%] rounded-lg p-3 shadow-sm ${
                           message.type === "user"
-                            ? "bg-blue-600 text-white"
+                            ? "bg-primary text-primary-foreground"
                             : "bg-white text-slate-900 border border-slate-200"
                         }`}
                       >
@@ -761,7 +763,7 @@ Can you help me understand this dimension better and suggest specific evaluation
                       <button
                         key={template.id}
                         onClick={() => handleChatTemplateClick(template)}
-                        className="inline-flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-md text-sm text-slate-700 hover:bg-slate-50 hover:border-blue-300 hover:text-blue-600 transition-all duration-200 font-medium"
+                        className="inline-flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-md text-sm text-slate-700 hover:bg-slate-50 hover:border-primary/30 hover:text-primary transition-all duration-200 font-medium"
                       >
                         {template.icon}
                         <span>{template.label}</span>
@@ -788,7 +790,7 @@ Can you help me understand this dimension better and suggest specific evaluation
                   <button
                     onClick={handleSendMessage}
                     disabled={!chatInput.trim()}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
                   >
                     <Send className="h-4 w-4" />
                   </button>
@@ -798,8 +800,8 @@ Can you help me understand this dimension better and suggest specific evaluation
 
             {/* Splitter Drag Handle */}
             <div
-              className={`w-1 bg-slate-300 hover:bg-blue-400 cursor-col-resize transition-colors duration-200 flex-shrink-0 ${
-                isDragging ? 'bg-blue-500' : ''
+              className={`w-1 bg-slate-300 hover:bg-primary/60 cursor-col-resize transition-colors duration-200 flex-shrink-0 ${
+                isDragging ? 'bg-primary' : ''
               }`}
               onMouseDown={handleMouseDown}
             >
@@ -809,7 +811,7 @@ Can you help me understand this dimension better and suggest specific evaluation
             </div>
 
             {/* Blueprint Area */}
-            <div className="flex-1 overflow-auto" style={{backgroundColor: '#f0f0f0'}}>
+            <div className="flex-1 overflow-auto" bg-white>
               <div className="max-w-7xl mx-auto px-8 py-8">
                 <div className="space-y-6">
                   <div className="flex justify-between items-center mb-6">
@@ -860,7 +862,7 @@ Can you help me understand this dimension better and suggest specific evaluation
                   <div className="flex justify-center pt-8 border-t border-slate-200 mt-8">
                     <button
                       onClick={handleConfirmBlueprint}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 rounded-lg text-lg font-semibold transition-all duration-200 hover:shadow-lg hover:scale-105 flex items-center gap-3"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground px-12 py-4 rounded-lg text-lg font-semibold transition-all duration-200 hover:shadow-lg hover:scale-105 flex items-center gap-3"
                     >
                       <span>Confirm Blueprint</span>
                       <ArrowRight className="h-5 w-5" />
@@ -879,7 +881,7 @@ Can you help me understand this dimension better and suggest specific evaluation
               setChatInput("I want to add a new capability to my evaluation framework. Can you help me identify what's missing and suggest a new capability dimension?");
               chatInputRef.current?.focus();
             }}
-            className="w-14 h-14 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
+            className="w-14 h-14 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
             style={{
               boxShadow: '0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05)'
             }}
@@ -901,8 +903,8 @@ Can you help me understand this dimension better and suggest specific evaluation
         <div className="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50 backdrop-blur-sm">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                <Trash2 className="w-5 h-5 text-red-600" />
+              <div className="w-10 h-10 bg-destructive/10 rounded-full flex items-center justify-center">
+                <Trash2 className="w-5 h-5 text-destructive" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">Delete Capability</h3>
@@ -924,7 +926,7 @@ Can you help me understand this dimension better and suggest specific evaluation
               </button>
               <button
                 onClick={handleDeleteConfirm}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors duration-200 flex items-center gap-2"
+                className="px-4 py-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-md transition-colors duration-200 flex items-center gap-2"
               >
                 <Trash2 className="w-4 h-4" />
                 Delete
@@ -983,7 +985,7 @@ Can you help me understand this dimension better and suggest specific evaluation
                   <div className="flex items-center justify-between">
                     <div className="flex gap-2">
                       {selectedTemplate && (
-                        <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                        <Badge variant="secondary" className="bg-primary/10 text-primary">
                           {templates.find((t) => t.id === selectedTemplate)?.title}
                         </Badge>
                       )}
@@ -996,7 +998,7 @@ Can you help me understand this dimension better and suggest specific evaluation
                         onClick={handleContinue}
                         disabled={!inputText.trim()}
                         size="lg"
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-8"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground px-8"
                       >
                         Continue <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
@@ -1020,7 +1022,7 @@ Can you help me understand this dimension better and suggest specific evaluation
                       key={template.id}
                       className={`cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02] border-2 ${
                         selectedTemplate === template.id
-                          ? "border-blue-500 bg-blue-50"
+                          ? "border-primary bg-primary/5"
                           : "border-slate-200 hover:border-slate-300"
                       }`}
                       onClick={() => handleTemplateClick(template)}
@@ -1029,7 +1031,7 @@ Can you help me understand this dimension better and suggest specific evaluation
                         <div className="flex items-start gap-4">
                           <div
                             className={`p-3 rounded-lg ${
-                              selectedTemplate === template.id ? "bg-blue-200" : "bg-slate-100"
+                              selectedTemplate === template.id ? "bg-primary/20" : "bg-slate-100"
                             }`}
                           >
                             {template.icon}
@@ -1051,14 +1053,14 @@ Can you help me understand this dimension better and suggest specific evaluation
             </div>
 
             {/* Pro Tip */}
-            <div className="mt-12 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+            <div className="mt-12 p-6 bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl border border-primary/20">
               <div className="flex items-start gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Info className="h-5 w-5 text-blue-600" />
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Info className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-blue-900 mb-2">Pro tip:</h4>
-                  <p className="text-blue-800 leading-relaxed">
+                  <h4 className="font-semibold text-primary mb-2">Pro tip:</h4>
+                  <p className="text-primary/80 leading-relaxed">
                     Be specific about what you want to evaluate. The more detailed your evaluation goals, the better
                     assessment framework we can generate. Include your target users, success criteria, and any specific
                     concerns you want to address.

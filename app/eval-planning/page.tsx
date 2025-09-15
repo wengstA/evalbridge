@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Sidebar } from "@/components/sidebar"
 import { ProjectSelector } from "@/components/project-selector"
-import { Send, Bot, User } from "lucide-react"
+import { Send, Bot, User, ArrowRight } from "lucide-react"
 
 /**
  * Defines the scoring rubric for a single qualitative item.
@@ -314,8 +314,8 @@ export default function EvalPlanning() {
 
       await new Promise((resolve) => setTimeout(resolve, 100))
 
-      console.log("[v0] Attempting to navigate to evaluation-overview")
-      router.push("/eval-planning/overview")
+      console.log("[v0] Attempting to navigate to eval-set-input-setup-new")
+      router.push("/eval-set-input-setup-new")
       console.log("[v0] Navigation call completed")
     } catch (error) {
       console.error("[v0] Error in handleConfirmConfiguration:", error)
@@ -417,8 +417,8 @@ export default function EvalPlanning() {
           <div className="w-96 bg-white border-r border-slate-200 flex flex-col shadow-lg">
             <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Bot className="h-5 w-5 text-blue-600" />
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Bot className="h-5 w-5 text-primary" />
                 </div>
                 <div>
                   <h2 className="font-semibold text-slate-900 text-lg">Metric Assistant</h2>
@@ -434,8 +434,8 @@ export default function EvalPlanning() {
                 </div>
               </div>
               {!selectedMetric && (
-                <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <p className="text-blue-700 text-sm font-medium">👉 Click a metric card to activate the assistant</p>
+                <div className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/20">
+                  <p className="text-primary text-sm font-medium">👉 Click a metric card to activate the assistant</p>
                 </div>
               )}
             </div>
@@ -450,7 +450,7 @@ export default function EvalPlanning() {
                       I'm ready to help you configure evaluation metrics and parameters. You can start chatting right
                       away or click on specific metric cards for targeted adjustments.
                     </p>
-                    <div className="text-xs text-blue-600 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                    <div className="text-xs text-primary bg-primary/5 p-3 rounded-lg border border-primary/20">
                       💡 Try: "What metrics should I use?" or "Help me understand thresholds"
                     </div>
                   </div>
@@ -461,7 +461,7 @@ export default function EvalPlanning() {
                     <div
                       className={`max-w-[85%] rounded-lg p-3 shadow-sm ${
                         message.type === "user"
-                          ? "bg-blue-600 text-white"
+                          ? "bg-primary text-primary-foreground"
                           : "bg-white text-slate-900 border border-slate-200"
                       }`}
                     >
@@ -521,7 +521,7 @@ export default function EvalPlanning() {
                 <button
                   onClick={handleSendMessage}
                   disabled={!chatInput.trim()}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
                 >
                   <Send className="h-4 w-4" />
                 </button>
@@ -577,7 +577,7 @@ export default function EvalPlanning() {
                                     >
                                       <td className="px-4 py-3">
                                         <div className="flex items-center gap-3">
-                                          <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
+                                          <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
                                           <div className="font-medium text-slate-900">{metric.metricName}</div>
                                         </div>
                                       </td>
@@ -659,19 +659,20 @@ export default function EvalPlanning() {
                       <div className="space-y-2">
                         <p className="text-slate-600 text-lg font-medium">
                           You've configured{" "}
-                          <span className="font-semibold text-purple-600 text-2xl">{capabilityDimensions.length}</span>{" "}
+                          <span className="font-semibold text-primary text-2xl">{capabilityDimensions.length}</span>{" "}
                           capability dimensions with{" "}
-                          <span className="font-semibold text-green-600 text-2xl">{totalQuantitativeMetrics}</span>{" "}
+                          <span className="font-semibold text-primary text-2xl">{totalQuantitativeMetrics}</span>{" "}
                           quantitative and{" "}
-                          <span className="font-semibold text-blue-600 text-2xl">{totalQualitativeMetrics}</span>{" "}
+                          <span className="font-semibold text-primary text-2xl">{totalQualitativeMetrics}</span>{" "}
                           qualitative metrics
                         </p>
                       </div>
                       <button
                         onClick={handleConfirmConfiguration}
-                        className="hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors bg-slate-700"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground px-12 py-4 rounded-lg text-lg font-semibold transition-all duration-200 hover:shadow-lg hover:scale-105 flex items-center gap-3 mx-auto"
                       >
-                        Continue to Requirements Breakdown →
+                        <span>Confirm</span>
+                        <ArrowRight className="h-5 w-5" />
                       </button>
                     </div>
                   </div>

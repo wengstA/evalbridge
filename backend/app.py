@@ -5,12 +5,23 @@ from google import genai
 from typing import List, Dict, Any
 import os
 from datetime import datetime
+import time
+import threading
+from prompt_manager import prompt_manager
+from workflow_dashboard import workflow_monitor
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
 # Gemini API configuration
-GEMINI_API_KEY = "AIzaSyD0Zea1gCEd8niseu4K9ofF0Sj633ZCai4"
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+if not GEMINI_API_KEY:
+    raise ValueError("GEMINI_API_KEY environment variable is required")
+
 client = genai.Client(api_key=GEMINI_API_KEY)
 
 class ChatMessage:
@@ -244,7 +255,7 @@ CONVERSATION STYLE:
 
     def create_chat_session(self):
         return client.chats.create(
-            model="gemini-2.5-flash"
+            model="gemini-2.0-flash-exp"
         )
 
 consultant = EvaluationConsultant()
@@ -279,7 +290,7 @@ def chat():
 
         # Generate response using Gemini
         response = client.models.generate_content(
-            model="gemini-2.5-pro",
+            model="gemini-2.0-flash-exp",
             contents=enhanced_prompt
         )
         
@@ -479,7 +490,7 @@ def extract_product_info_and_functions(user_input: str) -> dict:
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.5-pro",
+            model="gemini-2.0-flash-exp",
             contents=extraction_prompt
         )
         
@@ -558,7 +569,7 @@ def call_domain_router_agent(product_info: str, ideal_functions: str) -> dict:
     try:
         print("[DEBUG] Calling Gemini API for domain router...")
         response = client.models.generate_content(
-            model="gemini-2.5-pro",
+            model="gemini-2.0-flash-exp",
             contents=domain_router_prompt
         )
         
@@ -581,8 +592,6 @@ def call_domain_router_agent(product_info: str, ideal_functions: str) -> dict:
             if json_match:
                 json_str = json_match.group(1).strip()
                 print(f"[DEBUG] Extracted JSON string from domain router: {json_str[:100]}...")
-                # Fix double braces that might be caused by f-string formatting
-                json_str = json_str.replace('{{', '{').replace('}}', '}')
             else:
                 # Fallback to normal JSON extraction
                 json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
@@ -605,77 +614,50 @@ def call_domain_router_agent(product_info: str, ideal_functions: str) -> dict:
         raise e
 
 def call_dynamic_expert_agent(domain_context: dict, product_info: str, ideal_functions: str) -> list:
-    """Step B & C: Dynamic Expert Agent - Uses injected expertise for capability decomposition"""
+    """重构后的能力维度生成 - 使用外部提示词文件和工作流程监控"""
     
-    # Build the dynamic prompt with injected expertise
-    dynamic_expert_prompt = f"""# ROLE: 跨领域首席产品架构师 (Cross-Domain Principal Architect)
-
-# CONTEXT:
-你是一个自动化评测Agent。你的目标是将高阶产品理想态，翻译为一组结构化的核心能力维度。
-
-# PERSONA MANDATE (MANDATORY):
-为了完成此任务，你必须扮演一个独特的、融合了多领域知识的超级专家。你的分析必须同时反映以下三种视角：
-
-###########################################################
-# [INJECTED EXPERTISE (HOT-SWAPPABLE CONTEXT)]
-
-1. 你的 [专业/业务] 视角 ({domain_context['professionalDomain']['domainName']}):
-   你必须: {domain_context['professionalDomain']['knowledgeDescription']}
-
-2. 你的 [技术实现] 视角 ({domain_context['technicalDomain']['domainName']}):
-   你必须: {domain_context['technicalDomain']['knowledgeDescription']}
-
-3. 你的 [核心用户] 视角 ({domain_context['userDomain']['domainName']}):
-   你必须: {domain_context['userDomain']['knowledgeDescription']}
-
-###########################################################
-
-# TASK:
-现在，使用你上述的"三重融合专家视角"，严格分析用户提供的 [产品信息] 和 [理想功能]。
-将此需求解构为一个"核心能力维度"的JSON数组。
-你的输出必须同时体现出你对专业、技术和用户三方面的深刻理解。
-例如, 你的 `keyTechnicalFactors` 必须准确反映技术挑战，而你的 `userValue` 必须直指用户的核心痛点。
-
-# INPUT (User will provide):
-[产品信息]: {product_info}
-[理想功能]: {ideal_functions}
-
-# OUTPUT CONSTRAINTS (MANDATORY):
-1. 你必须且只能返回一个符合以下JSON Schema的 **JSON数组 (Array)**。不要包含任何JSON区块之外的解释性文本。
-2. 你输出的所有内容（尤其是 `title`, `description`, `userValue`, `keyTechnicalFactors`）必须严格反映你在 [INJECTED EXPERTISE] 中被赋予的专业身份。
-3. `priority` 必须是 "Critical", "High", "Medium" 之一。`icon` 是单个Emoji。
-4. `keyTechnicalFactors` 必须是具体的技术术语数组，每个元素都应该是一个包含name和description的对象。
-
-# JSON SCHEMA (Strictly Enforce):
-[
-  {{
-    "id": "string (kebab-case-identifier)",
-    "priority": "string (Critical | High | Medium)",
-    "icon": "string (Single Emoji)",
-    "title": "string (必须反映专家视角的维度标题)",
-    "description": "string (必须反映专家视角的详细描述)",
-    "userValue": "string (必须反映专家视角的深刻用户价值. Use Markdown.)",
-    "keyTechnicalFactors": [
-      {{
-        "name": "string (具体的技术挑战概念)",
-        "description": "string (该技术挑战的详细描述)"
-      }}
-    ],
-    "examples": {{
-      "good": "string (A concrete example of success)",
-      "bad": "string (A concrete example of failure)"
-    }},
-    "order": "integer"
-  }}
-]"""
-
+    # 生成执行ID
+    execution_id = f"capability_gen_{int(time.time())}"
+    
+    # 开始监控执行
+    workflow_monitor.start_execution(execution_id, {
+        'product_info': product_info,
+        'ideal_functions': ideal_functions,
+        'domain_context': domain_context
+    })
+    
     try:
+        # 步骤1: 加载提示词
+        workflow_monitor.add_step("Load Prompt Template", {
+            'action': 'Loading capability dimensions prompt template',
+            'template_source': 'prompts/capability_dimensions_prompt.txt'
+        })
+        
+        # 使用提示词管理器加载和格式化提示词
+        dynamic_expert_prompt = prompt_manager.format_capability_dimensions_prompt(
+            product_info=product_info,
+            ideal_functions=ideal_functions
+        )
+        
+        # 步骤2: 调用AI模型
+        workflow_monitor.add_step("Call AI Model", {
+            'action': 'Calling Gemini 2.5 Pro model',
+            'model': 'gemini-2.5-pro',
+            'prompt_length': len(dynamic_expert_prompt)
+        })
+        
         response = client.models.generate_content(
             model="gemini-2.5-pro",
             contents=dynamic_expert_prompt
         )
         
         response_text = response.text.strip()
+        
+        # 步骤3: 解析响应
+        workflow_monitor.add_step("Parse AI Response", {
+            'action': 'Extracting JSON from AI response',
+            'response_length': len(response_text)
+        })
         
         # Try to extract JSON from the response (handle markdown code blocks)
         import re
@@ -701,10 +683,33 @@ def call_dynamic_expert_agent(domain_context: dict, product_info: str, ideal_fun
             else:
                 raise ValueError("No valid JSON found in dynamic expert response")
         
-        return json.loads(json_str)
+        # 步骤4: 验证和返回结果
+        result = json.loads(json_str)
+        
+        workflow_monitor.add_step("Validate Results", {
+            'action': 'Validating generated capability dimensions',
+            'dimensions_count': len(result),
+            'dimensions': [{'id': dim.get('id'), 'title': dim.get('title')} for dim in result]
+        })
+        
+        # 完成执行
+        workflow_monitor.complete_execution({
+            'capability_dimensions': result,
+            'total_dimensions': len(result),
+            'execution_time': datetime.now().isoformat()
+        })
+        
+        return result
             
     except Exception as e:
         print(f"Dynamic expert error: {str(e)}")
+        
+        # 记录错误
+        workflow_monitor.complete_execution(
+            output_data=None,
+            error=str(e)
+        )
+        
         raise e
 
 @app.route('/api/generate-capability-dimensions', methods=['POST'])

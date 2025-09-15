@@ -27,8 +27,8 @@ Analyze the user's product description. Following the mandatory thinking process
 - **Crucially, each dimension you create must be a product of MULTIPLE lenses, not just one.** For instance, a dimension like "Identity & Artistic Appeal" is a blend of the User's emotional need, the Artistic/Professional standard, and the underlying Technical challenge of disentangled representation.
 
 # USER INPUT:
-[Product Information]: {{productInfo}}
-[Ideal Functions]: {{idealFunctions}}
+[Product Information]: {product_info}
+[Ideal Functions]: {ideal_functions}
 
 # OUTPUT INSTRUCTIONS (ABSOLUTELY MANDATORY):
 1.  **DO NOT** output your thinking process from Steps 1, 2, or 3. Your entire response must be **ONLY** the final JSON array generated in Step 4.
@@ -37,7 +37,7 @@ Analyze the user's product description. Following the mandatory thinking process
 
 # JSON SCHEMA:
 [
-  {
+  {{
     "id": "string (kebab-case-identifier)",
     "priority": "string (Critical | High | Medium)",
     "icon": "string (Single Emoji)",
@@ -49,10 +49,10 @@ Analyze the user's product description. Following the mandatory thinking process
       "string (Technical Concept 2)",
       "..."
     ],
-    "examples": {
+    "examples": {{
       "good": "string (A concrete example of success)",
       "bad": "string (A concrete example of failure)"
-    },
+    }},
     "order": "integer"
-  }
-] {{"type": "in", "path": "3019989b-5f6a-48db-a7ca-0f431a983723", "title": "User Input"}}
+  }}
+]

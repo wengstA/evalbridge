@@ -322,9 +322,11 @@ export default function Datasets() {
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <div className="flex gap-2">
-                          <Button size="sm" variant="secondary">
-                            <Eye className="h-4 w-4" />
-                          </Button>
+                          <Link href={`/data-engine/datasets/preview/${dataset.id}`}>
+                            <Button size="sm" variant="secondary">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </Link>
                           <Button size="sm" variant="secondary">
                             <Download className="h-4 w-4" />
                           </Button>
@@ -430,9 +432,11 @@ export default function Datasets() {
                               {getStatusIcon(dataset.status)} {dataset.status}
                             </Badge>
                             <div className="flex gap-1">
-                              <Button size="sm" variant="outline">
-                                <Eye className="h-4 w-4" />
-                              </Button>
+                              <Link href={`/data-engine/datasets/preview/${dataset.id}`}>
+                                <Button size="sm" variant="outline">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </Link>
                               <Button size="sm" variant="outline">
                                 <Download className="h-4 w-4" />
                               </Button>
