@@ -82,7 +82,6 @@ const quickActions = [
     description: "Manage models and datasets for evaluation",
     icon: Database,
     href: "/eval-execution",
-    color: "bg-green-500",
   },
   {
     title: "Run Model Eval",
@@ -203,25 +202,15 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {quickActions.map((action) => (
               <Link key={action.title} href={action.href}>
-                <Card className={`hover:shadow-lg transition-all duration-300 cursor-pointer group ${
-                  action.title === "Data Engine" ? "border-green-200 bg-gradient-to-r from-green-50 to-emerald-50" : ""
-                }`}>
+                <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer group hover:border-primary/30">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                        action.color ? action.color : "bg-primary/10"
-                      }`}>
-                        <action.icon className={`h-6 w-6 ${
-                          action.color ? "text-white" : "text-primary"
-                        }`} />
+                      <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                        <action.icon className="h-6 w-6 text-primary" />
                       </div>
                       <div className="flex-1">
-                        <h3 className={`font-semibold text-lg ${
-                          action.title === "Data Engine" ? "text-green-800" : ""
-                        }`}>{action.title}</h3>
-                        <p className={`${
-                          action.title === "Data Engine" ? "text-green-700" : "text-muted-foreground"
-                        }`}>{action.description}</p>
+                        <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors">{action.title}</h3>
+                        <p className="text-muted-foreground">{action.description}</p>
                       </div>
                     </div>
                   </CardContent>

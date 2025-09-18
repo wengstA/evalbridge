@@ -61,6 +61,7 @@ interface SelectedMetricInfo {
   type: "quantitative" | "qualitative"
 }
 
+// 优化的Mock数据，添加颜色和优先级
 const mockCapabilityDimensions: ICapabilityDimension[] = [
   {
     id: "identity-fidelity",
@@ -299,14 +300,35 @@ const renderMarkdown = (text: string) => {
   })
 }
 
-// 统一的主题色系 - 基于系统配色方案
+// 颜色系统
 const colorSystem = {
-  primary: {
-    headerBg: "bg-primary/5",
-    headerBorder: "border-primary/20",
-    headerText: "text-primary",
-    accent: "bg-primary/10",
-    light: "bg-primary/5"
+  emerald: {
+    bg: "bg-emerald-50",
+    border: "border-emerald-200",
+    text: "text-emerald-700",
+    accent: "bg-emerald-500",
+    light: "bg-emerald-100"
+  },
+  blue: {
+    bg: "bg-blue-50",
+    border: "border-blue-200", 
+    text: "text-blue-700",
+    accent: "bg-blue-500",
+    light: "bg-blue-100"
+  },
+  purple: {
+    bg: "bg-purple-50",
+    border: "border-purple-200",
+    text: "text-purple-700", 
+    accent: "bg-purple-500",
+    light: "bg-purple-100"
+  },
+  orange: {
+    bg: "bg-orange-50",
+    border: "border-orange-200",
+    text: "text-orange-700",
+    accent: "bg-orange-500", 
+    light: "bg-orange-100"
   }
 }
 
@@ -318,7 +340,7 @@ const priorityColors = {
   Low: "bg-gray-100 text-gray-800 border-gray-200"
 }
 
-export default function EvalPlanning() {
+export default function EvalPlanningRedesigned() {
   const [capabilityDimensions, setCapabilityDimensions] = useState<ICapabilityDimension[]>(mockCapabilityDimensions)
   const [selectedMetric, setSelectedMetric] = useState<SelectedMetricInfo | null>(null)
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
@@ -433,6 +455,7 @@ export default function EvalPlanning() {
       <Sidebar />
 
       <main className="flex-1 overflow-hidden flex flex-col ml-16">
+        {/* 优化的Header */}
         <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 px-8 py-6 sticky top-0 z-10 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
@@ -444,12 +467,12 @@ export default function EvalPlanning() {
         </header>
 
         <div className="flex flex-1 overflow-hidden">
-          {/* Chat Interface */}
+          {/* 优化的Chat Interface */}
           <div className="w-96 bg-white/90 backdrop-blur-sm border-r border-slate-200 flex flex-col shadow-xl">
-            <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-primary/5 to-accent/5">
+            <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Bot className="h-5 w-5 text-primary" />
+                <div className="p-2 bg-blue-500 rounded-lg">
+                  <Bot className="h-5 w-5 text-white" />
                 </div>
                 <div>
                   <h2 className="font-semibold text-slate-900 text-lg">Metric Assistant</h2>
@@ -465,23 +488,23 @@ export default function EvalPlanning() {
                 </div>
               </div>
               {!selectedMetric && (
-                <div className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/20">
-                  <p className="text-primary text-sm font-medium">👉 Click a metric card to activate the assistant</p>
+                <div className="mt-4 p-3 bg-blue-100 rounded-lg border border-blue-200">
+                  <p className="text-blue-700 text-sm font-medium">👉 Click a metric card to activate the assistant</p>
                 </div>
               )}
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gradient-to-b from-slate-50 to-white">
               {chatMessages.length === 0 ? (
                 <div className="text-center text-slate-500 mt-8">
                   <div className="p-6 bg-white rounded-xl mb-6 border border-slate-200 shadow-sm">
-                    <Bot className="h-16 w-16 mx-auto mb-4 text-primary" />
+                    <Bot className="h-16 w-16 mx-auto mb-4 text-blue-400" />
                     <h3 className="font-semibold text-slate-800 mb-3">Welcome to Metric Assistant!</h3>
                     <p className="text-sm text-slate-600 leading-relaxed mb-4">
                       I'm ready to help you configure evaluation metrics and parameters. You can start chatting right
                       away or click on specific metric cards for targeted adjustments.
                     </p>
-                    <div className="text-xs text-primary bg-primary/5 p-3 rounded-lg border border-primary/20">
+                    <div className="text-xs text-blue-600 bg-blue-50 p-3 rounded-lg border border-blue-200">
                       💡 Try: "What metrics should I use?" or "Help me understand thresholds"
                     </div>
                   </div>
@@ -492,7 +515,7 @@ export default function EvalPlanning() {
                     <div
                       className={`max-w-[85%] rounded-lg p-3 shadow-sm ${
                         message.type === "user"
-                          ? "bg-primary text-primary-foreground"
+                          ? "bg-blue-500 text-white"
                           : "bg-white text-slate-900 border border-slate-200"
                       }`}
                     >
@@ -510,18 +533,18 @@ export default function EvalPlanning() {
             </div>
 
             {selectedMetric && (
-              <div className="px-4 py-3 border-t border-slate-200 bg-gradient-to-r from-primary/5 to-accent/5">
+              <div className="px-4 py-3 border-t border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50">
                 <p className="text-xs text-slate-600 mb-2 font-medium">Quick Actions:</p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleTemplateOption("explain")}
-                    className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm text-slate-700 hover:bg-slate-50 hover:border-primary/30 transition-colors font-medium"
+                    className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm text-slate-700 hover:bg-slate-50 hover:border-blue-400 transition-colors font-medium"
                   >
                     📖 Explain to me
                   </button>
                   <button
                     onClick={() => handleTemplateOption("adjust")}
-                    className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm text-slate-700 hover:bg-slate-50 hover:border-primary/30 transition-colors font-medium"
+                    className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm text-slate-700 hover:bg-slate-50 hover:border-blue-400 transition-colors font-medium"
                   >
                     ⚙️ Adjust the Metrics
                   </button>
@@ -552,7 +575,7 @@ export default function EvalPlanning() {
                 <button
                   onClick={handleSendMessage}
                   disabled={!chatInput.trim()}
-                  className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
                 >
                   <Send className="h-4 w-4" />
                 </button>
@@ -560,249 +583,225 @@ export default function EvalPlanning() {
             </div>
           </div>
 
-          {/* Main Content */}
+          {/* 优化的Main Content */}
           <div className="flex-1 overflow-auto bg-gradient-to-br from-slate-50 to-slate-100">
             <div className="max-w-7xl mx-auto px-8 py-8">
               <div className="space-y-8">
-                {/* 统计概览卡片 - 统一主题色系 */}
+                {/* 统计概览卡片 */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                  <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20 hover:border-primary/30 transition-colors">
+                  <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200">
                     <CardContent className="p-6">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          <BarChart3 className="h-5 w-5 text-primary" />
+                        <div className="p-2 bg-emerald-500 rounded-lg">
+                          <BarChart3 className="h-5 w-5 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground font-medium">Capability Dimensions</p>
-                          <p className="text-2xl font-bold text-primary">{capabilityDimensions.length}</p>
+                          <p className="text-sm text-emerald-600 font-medium">Capability Dimensions</p>
+                          <p className="text-2xl font-bold text-emerald-700">{capabilityDimensions.length}</p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                   
-                  <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20 hover:border-primary/30 transition-colors">
+                  <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
                     <CardContent className="p-6">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          <Zap className="h-5 w-5 text-primary" />
+                        <div className="p-2 bg-blue-500 rounded-lg">
+                          <Zap className="h-5 w-5 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground font-medium">Quantitative Metrics</p>
-                          <p className="text-2xl font-bold text-primary">{totalQuantitativeMetrics}</p>
+                          <p className="text-sm text-blue-600 font-medium">Quantitative Metrics</p>
+                          <p className="text-2xl font-bold text-blue-700">{totalQuantitativeMetrics}</p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                   
-                  <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20 hover:border-primary/30 transition-colors">
+                  <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
                     <CardContent className="p-6">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          <Users className="h-5 w-5 text-primary" />
+                        <div className="p-2 bg-purple-500 rounded-lg">
+                          <Users className="h-5 w-5 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground font-medium">Qualitative Metrics</p>
-                          <p className="text-2xl font-bold text-primary">{totalQualitativeMetrics}</p>
+                          <p className="text-sm text-purple-600 font-medium">Qualitative Metrics</p>
+                          <p className="text-2xl font-bold text-purple-700">{totalQualitativeMetrics}</p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                   
-                  <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20 hover:border-primary/30 transition-colors">
+                  <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
                     <CardContent className="p-6">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          <Settings className="h-5 w-5 text-primary" />
+                        <div className="p-2 bg-orange-500 rounded-lg">
+                          <Settings className="h-5 w-5 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground font-medium">Total Metrics</p>
-                          <p className="text-2xl font-bold text-primary">{totalQuantitativeMetrics + totalQualitativeMetrics}</p>
+                          <p className="text-sm text-orange-600 font-medium">Total Metrics</p>
+                          <p className="text-2xl font-bold text-orange-700">{totalQuantitativeMetrics + totalQualitativeMetrics}</p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                 </div>
 
+                {/* 优化的能力维度卡片 */}
                 <section className="space-y-6">
-                  <div className="grid grid-cols-1 gap-6">
-                    {capabilityDimensions.map((dimension) => {
-                      const colors = colorSystem.primary
-                      return (
-                        <Card key={dimension.id} className="bg-white border-slate-200 border shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden p-0">
-                          <div className={`${colors.headerBg} border-b ${colors.headerBorder} px-6 py-6`}>
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-4 mb-3">
-                                  <span className="text-3xl">{dimension.icon}</span>
-                                  <div>
-                                    <CardTitle className={`text-2xl ${colors.headerText}`}>{dimension.title}</CardTitle>
-                                    <Badge className={`mt-2 ${priorityColors[dimension.priority]}`}>
-                                      {dimension.priority} Priority
-                                    </Badge>
-                                  </div>
+                  {capabilityDimensions.map((dimension) => {
+                    const colors = colorSystem[dimension.color as keyof typeof colorSystem]
+                    return (
+                      <Card key={dimension.id} className={`${colors.bg} ${colors.border} border-2 shadow-lg hover:shadow-xl transition-all duration-300`}>
+                        <CardHeader className={`${colors.bg} border-b ${colors.border}`}>
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-4 mb-3">
+                                <span className="text-3xl">{dimension.icon}</span>
+                                <div>
+                                  <CardTitle className={`text-2xl ${colors.text}`}>{dimension.title}</CardTitle>
+                                  <Badge className={`mt-2 ${priorityColors[dimension.priority]}`}>
+                                    {dimension.priority} Priority
+                                  </Badge>
                                 </div>
-                                <CardDescription className="text-slate-600 text-base leading-relaxed">
-                                  {dimension.description}
-                                </CardDescription>
-                                <div className="mt-4 p-3 bg-white/80 rounded-lg border border-slate-200">
-                                  <p className="text-sm text-slate-700 font-medium">💡 User Value:</p>
-                                  <p className="text-sm text-slate-600 mt-1">{renderMarkdown(dimension.userValue)}</p>
-                                </div>
+                              </div>
+                              <CardDescription className="text-slate-600 text-base leading-relaxed">
+                                {dimension.description}
+                              </CardDescription>
+                              <div className="mt-4 p-3 bg-white/60 rounded-lg border border-slate-200">
+                                <p className="text-sm text-slate-700 font-medium">💡 User Value:</p>
+                                <p className="text-sm text-slate-600 mt-1">{renderMarkdown(dimension.userValue)}</p>
                               </div>
                             </div>
                           </div>
+                        </CardHeader>
 
-                          <CardContent className="p-6">
-                            {/* 定量的指标 - 卡片化设计 */}
-                            <div className="space-y-6">
-                              <div className="flex items-center gap-3">
-                                <div className={`p-2 ${colors.light} rounded-lg`}>
-                                  <Zap className={`h-5 w-5 ${colors.headerText}`} />
-                                </div>
-                                <h5 className={`text-xl font-semibold ${colors.headerText}`}>Quantitative Metrics</h5>
-                                <Badge variant="outline" className="bg-white/80">{dimension.quantitativeMetrics.length}</Badge>
+                        <CardContent className="p-6">
+                          {/* 定量的指标 - 卡片化设计 */}
+                          <div className="space-y-6">
+                            <div className="flex items-center gap-3">
+                              <div className={`p-2 ${colors.light} rounded-lg`}>
+                                <Zap className={`h-5 w-5 ${colors.text}`} />
                               </div>
-                              <p className="text-slate-600 text-sm ml-11">
-                                Automated measurements with specific tools and formulas
-                              </p>
+                              <h5 className={`text-xl font-semibold ${colors.text}`}>Quantitative Metrics</h5>
+                              <Badge variant="outline" className="bg-white/80">{dimension.quantitativeMetrics.length}</Badge>
+                            </div>
+                            <p className="text-slate-600 text-sm ml-11">
+                              Automated measurements with specific tools and formulas
+                            </p>
 
-                              <div className="grid gap-4 ml-11">
-                                {dimension.quantitativeMetrics.map((metric) => (
-                                  <Card 
-                                    key={metric.metricId} 
-                                    className="bg-white/80 border-slate-200 hover:shadow-md hover:border-blue-300 cursor-pointer transition-all duration-200"
-                                    onClick={() => handleQuantitativeMetricClick(metric, dimension)}
-                                  >
-                                    <CardContent className="p-4">
-                                      <div className="flex items-start gap-3">
-                                        <div className={`w-3 h-3 ${colors.accent} rounded-full flex-shrink-0 mt-2`}></div>
-                                        <div className="flex-1">
-                                          <h6 className="font-semibold text-slate-900 mb-2">{metric.metricName}</h6>
-                                          <div className="space-y-2">
-                                            <div className="flex items-center gap-2">
-                                              <Settings className="h-4 w-4 text-slate-400" />
-                                              <span className="text-sm text-slate-600 font-medium">Tool:</span>
-                                              <span className="text-sm text-slate-600">{metric.tool}</span>
-                                            </div>
-                                            <div className="flex items-start gap-2">
-                                              <Eye className="h-4 w-4 text-slate-400 mt-0.5" />
-                                              <span className="text-sm text-slate-600 font-medium">Description:</span>
-                                              <span className="text-sm text-slate-600">{renderMarkdown(metric.description)}</span>
-                                            </div>
+                            <div className="grid gap-4 ml-11">
+                              {dimension.quantitativeMetrics.map((metric) => (
+                                <Card 
+                                  key={metric.metricId} 
+                                  className="bg-white/80 border-slate-200 hover:shadow-md hover:border-blue-300 cursor-pointer transition-all duration-200"
+                                  onClick={() => handleQuantitativeMetricClick(metric, dimension)}
+                                >
+                                  <CardContent className="p-4">
+                                    <div className="flex items-start gap-3">
+                                      <div className={`w-3 h-3 ${colors.accent} rounded-full flex-shrink-0 mt-2`}></div>
+                                      <div className="flex-1">
+                                        <h6 className="font-semibold text-slate-900 mb-2">{metric.metricName}</h6>
+                                        <div className="space-y-2">
+                                          <div className="flex items-center gap-2">
+                                            <Settings className="h-4 w-4 text-slate-400" />
+                                            <span className="text-sm text-slate-600 font-medium">Tool:</span>
+                                            <span className="text-sm text-slate-600">{metric.tool}</span>
+                                          </div>
+                                          <div className="flex items-start gap-2">
+                                            <Eye className="h-4 w-4 text-slate-400 mt-0.5" />
+                                            <span className="text-sm text-slate-600 font-medium">Description:</span>
+                                            <span className="text-sm text-slate-600">{renderMarkdown(metric.description)}</span>
                                           </div>
                                         </div>
                                       </div>
-                                    </CardContent>
-                                  </Card>
-                                ))}
-                              </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              ))}
                             </div>
+                          </div>
 
-                            {/* 定性的指标 - 美观表格设计 */}
-                            <div className="space-y-6 mt-8">
-                              <div className="flex items-center gap-3">
-                                <div className={`p-2 ${colors.light} rounded-lg`}>
-                                  <Users className={`h-5 w-5 ${colors.headerText}`} />
-                                </div>
-                                <h5 className={`text-xl font-semibold ${colors.headerText}`}>Qualitative Metrics</h5>
-                                <Badge variant="outline" className="bg-white/80">{dimension.qualitativeMetrics.length}</Badge>
+                          {/* 定性的指标 - 卡片化设计 */}
+                          <div className="space-y-6 mt-8">
+                            <div className="flex items-center gap-3">
+                              <div className={`p-2 ${colors.light} rounded-lg`}>
+                                <Users className={`h-5 w-5 ${colors.text}`} />
                               </div>
-                              <p className="text-slate-600 text-sm ml-11">
-                                Human evaluation rubrics with detailed scoring criteria
-                              </p>
-
-                              <div className="ml-11">
-                                <div className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm">
-                                  <table className="w-full">
-                                    <thead className="bg-gradient-to-r from-primary/5 to-accent/5 border-b border-primary/20">
-                                      <tr>
-                                        <th className="text-left px-6 py-4 text-sm font-semibold text-primary">Metric</th>
-                                        <th className="text-left px-6 py-4 text-sm font-semibold text-primary">Perfect (5-point)</th>
-                                        <th className="text-left px-6 py-4 text-sm font-semibold text-primary">Acceptable (3-point)</th>
-                                        <th className="text-left px-6 py-4 text-sm font-semibold text-primary">Fail (1-point)</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {dimension.qualitativeMetrics.map((metric, index) => (
-                                        <tr
-                                          key={metric.metricId}
-                                          onClick={() => handleQualitativeMetricClick(metric, dimension)}
-                                          className={`border-b border-slate-100 hover:bg-primary/5 cursor-pointer transition-all duration-200 ${
-                                            index % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'
-                                          }`}
-                                        >
-                                          <td className="px-6 py-4">
-                                            <div className="font-semibold text-slate-900 text-sm leading-relaxed">
-                                              {metric.itemName}
-                                            </div>
-                                          </td>
-                                          <td className="px-6 py-4">
-                                            <div className="space-y-2">
-                                              <div className="flex items-center gap-2">
-                                                <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                                                <span className="text-xs font-medium text-green-700">Perfect</span>
-                                              </div>
-                                              <p className="text-sm text-slate-600 leading-relaxed">
-                                                {renderMarkdown(metric.perfectScore)}
-                                              </p>
-                                            </div>
-                                          </td>
-                                          <td className="px-6 py-4">
-                                            <div className="space-y-2">
-                                              <div className="flex items-center gap-2">
-                                                <AlertCircle className="h-4 w-4 text-yellow-600 flex-shrink-0" />
-                                                <span className="text-xs font-medium text-yellow-700">Acceptable</span>
-                                              </div>
-                                              <p className="text-sm text-slate-600 leading-relaxed">
-                                                {renderMarkdown(metric.acceptableScore)}
-                                              </p>
-                                            </div>
-                                          </td>
-                                          <td className="px-6 py-4">
-                                            <div className="space-y-2">
-                                              <div className="flex items-center gap-2">
-                                                <AlertCircle className="h-4 w-4 text-red-600 flex-shrink-0" />
-                                                <span className="text-xs font-medium text-red-700">Fail</span>
-                                              </div>
-                                              <p className="text-sm text-slate-600 leading-relaxed">
-                                                {renderMarkdown(metric.failScore)}
-                                              </p>
-                                            </div>
-                                          </td>
-                                        </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
-                                </div>
-                              </div>
+                              <h5 className={`text-xl font-semibold ${colors.text}`}>Qualitative Metrics</h5>
+                              <Badge variant="outline" className="bg-white/80">{dimension.qualitativeMetrics.length}</Badge>
                             </div>
-                          </CardContent>
-                        </Card>
-                      )
-                    })}
-                  </div>
+                            <p className="text-slate-600 text-sm ml-11">
+                              Human evaluation rubrics with detailed scoring criteria
+                            </p>
+
+                            <div className="grid gap-4 ml-11">
+                              {dimension.qualitativeMetrics.map((metric) => (
+                                <Card 
+                                  key={metric.metricId} 
+                                  className="bg-white/80 border-slate-200 hover:shadow-md hover:border-purple-300 cursor-pointer transition-all duration-200"
+                                  onClick={() => handleQualitativeMetricClick(metric, dimension)}
+                                >
+                                  <CardContent className="p-4">
+                                    <div className="space-y-4">
+                                      <h6 className="font-semibold text-slate-900">{metric.itemName}</h6>
+                                      
+                                      <div className="grid gap-3">
+                                        <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                                          <div className="flex items-center gap-2 mb-2">
+                                            <CheckCircle className="h-4 w-4 text-green-600" />
+                                            <span className="text-sm font-medium text-green-800">Perfect (5-point)</span>
+                                          </div>
+                                          <p className="text-sm text-green-700">{renderMarkdown(metric.perfectScore)}</p>
+                                        </div>
+                                        
+                                        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                          <div className="flex items-center gap-2 mb-2">
+                                            <AlertCircle className="h-4 w-4 text-yellow-600" />
+                                            <span className="text-sm font-medium text-yellow-800">Acceptable (3-point)</span>
+                                          </div>
+                                          <p className="text-sm text-yellow-700">{renderMarkdown(metric.acceptableScore)}</p>
+                                        </div>
+                                        
+                                        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                                          <div className="flex items-center gap-2 mb-2">
+                                            <AlertCircle className="h-4 w-4 text-red-600" />
+                                            <span className="text-sm font-medium text-red-800">Fail (1-point)</span>
+                                          </div>
+                                          <p className="text-sm text-red-700">{renderMarkdown(metric.failScore)}</p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              ))}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
                 </section>
 
-                {/* 优化的确认按钮区域 - 使用系统主题色 */}
+                {/* 优化的确认按钮区域 */}
                 <section className="py-8">
-                  <Card className="bg-gradient-to-r from-slate-50/80 to-slate-100/60 border-slate-200/60 shadow-lg">
+                  <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 shadow-lg">
                     <CardContent className="p-8">
                       <div className="text-center space-y-6">
                         <div className="space-y-3">
                           <h3 className="text-2xl font-bold text-slate-900">Ready to Configure Evaluation?</h3>
                           <p className="text-slate-600 text-lg">
                             You've configured{" "}
-                            <span className="font-bold text-primary text-2xl">{capabilityDimensions.length}</span>{" "}
+                            <span className="font-bold text-blue-600 text-2xl">{capabilityDimensions.length}</span>{" "}
                             capability dimensions with{" "}
-                            <span className="font-bold text-primary text-2xl">{totalQuantitativeMetrics}</span>{" "}
+                            <span className="font-bold text-blue-600 text-2xl">{totalQuantitativeMetrics}</span>{" "}
                             quantitative and{" "}
-                            <span className="font-bold text-primary text-2xl">{totalQualitativeMetrics}</span>{" "}
+                            <span className="font-bold text-blue-600 text-2xl">{totalQualitativeMetrics}</span>{" "}
                             qualitative metrics
                           </p>
                         </div>
                         <button
                           onClick={handleConfirmConfiguration}
-                          className="bg-primary hover:bg-primary/90 text-primary-foreground px-12 py-4 rounded-lg text-lg font-semibold transition-all duration-200 hover:shadow-xl hover:scale-105 flex items-center gap-3 mx-auto"
+                          className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-12 py-4 rounded-lg text-lg font-semibold transition-all duration-200 hover:shadow-xl hover:scale-105 flex items-center gap-3 mx-auto"
                         >
                           <span>Confirm Configuration</span>
                           <ArrowRight className="h-5 w-5" />

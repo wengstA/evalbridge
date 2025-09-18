@@ -9,6 +9,7 @@ import time
 import threading
 from prompt_manager import prompt_manager
 from workflow_dashboard import workflow_monitor
+from mock_data_generator import mock_generator
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -17,12 +18,20 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
-# Gemini API configuration
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
-if not GEMINI_API_KEY:
-    raise ValueError("GEMINI_API_KEY environment variable is required")
+# Application mode configuration
+APP_MODE = os.getenv('APP_MODE', 'demo').lower()
+print(f"🚀 Application running in {APP_MODE.upper()} mode")
 
-client = genai.Client(api_key=GEMINI_API_KEY)
+# Gemini API configuration (only for production mode)
+client = None
+if APP_MODE == 'production':
+    GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+    if not GEMINI_API_KEY:
+        raise ValueError("GEMINI_API_KEY environment variable is required for production mode")
+    client = genai.Client(api_key=GEMINI_API_KEY)
+    print("✅ Gemini API client initialized")
+else:
+    print("🎭 Running in demo mode with mock data")
 
 class ChatMessage:
     def __init__(self, role: str, content: str):
@@ -288,16 +297,27 @@ def chat():
         
         enhanced_prompt += f"User question: {message}\n\nPlease respond as the AI evaluation consultant:"
 
-        # Generate response using Gemini
-        response = client.models.generate_content(
-            model="gemini-2.0-flash-exp",
-            contents=enhanced_prompt
-        )
+        if APP_MODE == 'demo':
+            # 演示模式：使用模拟响应
+            response_text = mock_generator.generate_chat_response(message)
+        else:
+            # 生产模式：使用真实AI API
+            if not client:
+                return jsonify({'error': 'AI client not initialized'}), 500
+            
+            # Generate response using Gemini
+            response = client.models.generate_content(
+                model="gemini-2.0-flash-exp",
+                contents=enhanced_prompt
+            )
+            
+            response_text = response.text
         
         return jsonify({
-            'response': response.text,
+            'response': response_text,
             'timestamp': datetime.now().isoformat(),
-            'status': 'success'
+            'status': 'success',
+            'mode': APP_MODE
         })
 
     except Exception as e:
@@ -454,6 +474,18 @@ def get_domain_configs():
 
 def extract_product_info_and_functions(user_input: str) -> dict:
     """Step 0: Information Extraction Agent - Intelligently parse user input"""
+    
+    if APP_MODE == 'demo':
+        # 演示模式：使用模拟数据
+        return {
+            'productInfo': f"Demo product based on: {user_input}",
+            'idealFunctions': f"Demo functions based on: {user_input}"
+        }
+    
+    # 生产模式：使用真实AI API
+    if not client:
+        raise ValueError("AI client not initialized for production mode")
+    
     extraction_prompt = f"""# ROLE: 产品需求信息提取专家 (Product Requirements Extraction Specialist)
 
 # CONTEXT:
@@ -519,6 +551,18 @@ def extract_product_info_and_functions(user_input: str) -> dict:
 
 def call_domain_router_agent(product_info: str, ideal_functions: str) -> dict:
     """Step A: Domain Router Agent - Identifies required expert knowledge domains"""
+    
+    if APP_MODE == 'demo':
+        # 演示模式：使用模拟数据
+        return {
+            'primary_domain': '3D Computer Vision',
+            'secondary_domains': ['Machine Learning', 'User Experience'],
+            'domain_config': 'q_figurine_3d'
+        }
+    
+    # 生产模式：使用真实AI API
+    if not client:
+        raise ValueError("AI client not initialized for production mode")
     
     print(f"[DEBUG] Domain router called with product_info: {product_info[:50]}...")
     print(f"[DEBUG] Domain router called with ideal_functions: {ideal_functions[:50]}...")
@@ -614,7 +658,7 @@ def call_domain_router_agent(product_info: str, ideal_functions: str) -> dict:
         raise e
 
 def call_dynamic_expert_agent(domain_context: dict, product_info: str, ideal_functions: str) -> list:
-    """重构后的能力维度生成 - 使用外部提示词文件和工作流程监控"""
+    """重构后的能力维度生成 - 支持演示模式和真实模式"""
     
     # 生成执行ID
     execution_id = f"capability_gen_{int(time.time())}"
@@ -623,80 +667,105 @@ def call_dynamic_expert_agent(domain_context: dict, product_info: str, ideal_fun
     workflow_monitor.start_execution(execution_id, {
         'product_info': product_info,
         'ideal_functions': ideal_functions,
-        'domain_context': domain_context
+        'domain_context': domain_context,
+        'mode': APP_MODE
     })
     
     try:
-        # 步骤1: 加载提示词
-        workflow_monitor.add_step("Load Prompt Template", {
-            'action': 'Loading capability dimensions prompt template',
-            'template_source': 'prompts/capability_dimensions_prompt.txt'
-        })
-        
-        # 使用提示词管理器加载和格式化提示词
-        dynamic_expert_prompt = prompt_manager.format_capability_dimensions_prompt(
-            product_info=product_info,
-            ideal_functions=ideal_functions
-        )
-        
-        # 步骤2: 调用AI模型
-        workflow_monitor.add_step("Call AI Model", {
-            'action': 'Calling Gemini 2.5 Pro model',
-            'model': 'gemini-2.5-pro',
-            'prompt_length': len(dynamic_expert_prompt)
-        })
-        
-        response = client.models.generate_content(
-            model="gemini-2.5-pro",
-            contents=dynamic_expert_prompt
-        )
-        
-        response_text = response.text.strip()
-        
-        # 步骤3: 解析响应
-        workflow_monitor.add_step("Parse AI Response", {
-            'action': 'Extracting JSON from AI response',
-            'response_length': len(response_text)
-        })
-        
-        # Try to extract JSON from the response (handle markdown code blocks)
-        import re
-        
-        # First try to remove markdown code block markers
-        if '```json' in response_text:
-            # Extract content between ```json and ```
-            json_match = re.search(r'```json\s*(.*?)\s*```', response_text, re.DOTALL)
-            if json_match:
-                json_str = json_match.group(1).strip()
+        if APP_MODE == 'demo':
+            # 演示模式：使用模拟数据
+            workflow_monitor.add_step("Demo Mode", {
+                'action': 'Generating mock capability dimensions',
+                'mode': 'demo',
+                'note': 'Using pre-generated realistic data for demonstration'
+            })
+            
+            # 模拟处理时间
+            import time
+            time.sleep(1)  # 模拟AI处理时间
+            
+            # 生成模拟数据
+            result = mock_generator.generate_capability_dimensions(product_info, ideal_functions)
+            
+            workflow_monitor.add_step("Mock Data Generated", {
+                'action': 'Mock capability dimensions generated',
+                'dimensions_count': len(result),
+                'dimensions': [{'id': dim.get('id'), 'title': dim.get('title')} for dim in result]
+            })
+            
+        else:
+            # 生产模式：使用真实AI API
+            # 步骤1: 加载提示词
+            workflow_monitor.add_step("Load Prompt Template", {
+                'action': 'Loading capability dimensions prompt template',
+                'template_source': 'prompts/capability_dimensions_prompt.txt'
+            })
+            
+            # 使用提示词管理器加载和格式化提示词
+            dynamic_expert_prompt = prompt_manager.format_capability_dimensions_prompt(
+                product_info=product_info,
+                ideal_functions=ideal_functions
+            )
+            
+            # 步骤2: 调用AI模型
+            workflow_monitor.add_step("Call AI Model", {
+                'action': 'Calling Gemini 2.5 Pro model',
+                'model': 'gemini-2.5-pro',
+                'prompt_length': len(dynamic_expert_prompt)
+            })
+            
+            response = client.models.generate_content(
+                model="gemini-2.5-pro",
+                contents=dynamic_expert_prompt
+            )
+            
+            response_text = response.text.strip()
+            
+            # 步骤3: 解析响应
+            workflow_monitor.add_step("Parse AI Response", {
+                'action': 'Extracting JSON from AI response',
+                'response_length': len(response_text)
+            })
+            
+            # Try to extract JSON from the response (handle markdown code blocks)
+            import re
+            
+            # First try to remove markdown code block markers
+            if '```json' in response_text:
+                # Extract content between ```json and ```
+                json_match = re.search(r'```json\s*(.*?)\s*```', response_text, re.DOTALL)
+                if json_match:
+                    json_str = json_match.group(1).strip()
+                else:
+                    # Fallback to normal JSON extraction
+                    json_match = re.search(r'\[.*\]', response_text, re.DOTALL)
+                    if json_match:
+                        json_str = json_match.group(0)
+                    else:
+                        raise ValueError("No valid JSON found in dynamic expert response")
             else:
-                # Fallback to normal JSON extraction
+                # Normal JSON extraction
                 json_match = re.search(r'\[.*\]', response_text, re.DOTALL)
                 if json_match:
                     json_str = json_match.group(0)
                 else:
                     raise ValueError("No valid JSON found in dynamic expert response")
-        else:
-            # Normal JSON extraction
-            json_match = re.search(r'\[.*\]', response_text, re.DOTALL)
-            if json_match:
-                json_str = json_match.group(0)
-            else:
-                raise ValueError("No valid JSON found in dynamic expert response")
-        
-        # 步骤4: 验证和返回结果
-        result = json.loads(json_str)
-        
-        workflow_monitor.add_step("Validate Results", {
-            'action': 'Validating generated capability dimensions',
-            'dimensions_count': len(result),
-            'dimensions': [{'id': dim.get('id'), 'title': dim.get('title')} for dim in result]
-        })
+            
+            # 步骤4: 验证和返回结果
+            result = json.loads(json_str)
+            
+            workflow_monitor.add_step("Validate Results", {
+                'action': 'Validating generated capability dimensions',
+                'dimensions_count': len(result),
+                'dimensions': [{'id': dim.get('id'), 'title': dim.get('title')} for dim in result]
+            })
         
         # 完成执行
         workflow_monitor.complete_execution({
             'capability_dimensions': result,
             'total_dimensions': len(result),
-            'execution_time': datetime.now().isoformat()
+            'execution_time': datetime.now().isoformat(),
+            'mode': APP_MODE
         })
         
         return result
@@ -805,6 +874,35 @@ def generate_capability_dimensions_internal(product_info: str, ideal_functions: 
     except Exception as e:
         raise e
 
+@app.route('/api/mode', methods=['GET'])
+def get_mode():
+    """Get current application mode"""
+    return jsonify({
+        'mode': APP_MODE,
+        'is_demo': APP_MODE == 'demo',
+        'is_production': APP_MODE == 'production'
+    })
+
+@app.route('/api/mode', methods=['POST'])
+def set_mode():
+    """Set application mode (requires restart)"""
+    try:
+        data = request.get_json()
+        new_mode = data.get('mode', '').lower()
+        
+        if new_mode not in ['demo', 'production']:
+            return jsonify({'error': 'Invalid mode. Must be "demo" or "production"'}), 400
+        
+        return jsonify({
+            'message': f'Mode will be set to {new_mode} on next restart',
+            'current_mode': APP_MODE,
+            'new_mode': new_mode,
+            'note': 'Please restart the application for changes to take effect'
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f'Failed to set mode: {str(e)}'}), 500
+
 @app.route('/api/templates', methods=['GET'])
 def get_templates():
     """Get evaluation templates for different scenarios"""
@@ -839,5 +937,9 @@ def get_templates():
 
 if __name__ == '__main__':
     print("Starting AI Evaluation Consultant API...")
-    print(f"Gemini API configured: {'Yes' if GEMINI_API_KEY else 'No'}")
+    print(f"Application mode: {APP_MODE.upper()}")
+    if APP_MODE == 'production':
+        print(f"Gemini API configured: {'Yes' if GEMINI_API_KEY else 'No'}")
+    else:
+        print("Running in demo mode with mock data")
     app.run(debug=True, host='0.0.0.0', port=8080)

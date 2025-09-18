@@ -1,0 +1,24 @@
+{
+  "capability_images": {
+    "identity-and-appeal": {
+      "good": "images/examples/identity-and-appeal-good.jpg",
+      "bad": "images/examples/identity-and-appeal-bad.jpg"
+    },
+    "form-and-stylization": {
+      "good": "images/examples/form-and-stylization-good.jpg",
+      "bad": "images/examples/form-and-stylization-bad.jpg"
+    },
+    "material-expression": {
+      "good": "images/examples/material-expression-good.jpg",
+      "bad": "images/examples/material-expression-bad.jpg"
+    },
+    "technical-integrity": {
+      "good": "images/examples/technical-integrity-good.jpg",
+      "bad": "images/examples/technical-integrity-bad.jpg"
+    }
+  },
+  "fallback_images": {
+    "good": "/images/examples/default-good.jpg",
+    "bad": "/images/examples/default-bad.jpg"
+  }
+}

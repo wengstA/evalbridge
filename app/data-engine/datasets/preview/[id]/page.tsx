@@ -53,42 +53,63 @@ interface FolderStructure {
   modifiedAt?: string
 }
 
-// 根据类别生成模拟的图片URL数据
-const generateMockImageData = (category: string): FolderStructure[] => {
-  const baseUrls = {
+// 动态加载数据集图片的函数
+const loadDatasetImages = (category: string): string[] => {
+  // 使用我们下载的真实数据集图片
+  const imageUrls = {
     "3D Assets": [
-      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=400&fit=crop",
+      "/images/datasets/material_textures/material_textures_9480590_1.jpg",
+      "/images/datasets/material_textures/material_textures_10786902_2.jpg",
+      "/images/datasets/material_textures/material_textures_8935894_3.jpg",
+      "/images/datasets/material_textures/material_textures_5503877_1.jpg",
+      "/images/datasets/material_textures/material_textures_5253420_2.jpg",
+      "/images/datasets/material_textures/material_textures_26736142_3.jpg",
     ],
     "Materials": [
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop",
+      "/images/datasets/material_textures/material_textures_129722_1.jpg",
+      "/images/datasets/material_textures/material_textures_129723_2.jpg",
+      "/images/datasets/material_textures/material_textures_129728_3.jpg",
+      "/images/datasets/material_textures/material_textures_33927540_1.jpg",
+      "/images/datasets/material_textures/material_textures_33918437_2.jpg",
+      "/images/datasets/material_textures/material_textures_978503_3.jpg",
+      "/images/datasets/material_textures/material_textures_12495668_1.jpg",
+      "/images/datasets/material_textures/material_textures_4452377_2.jpg",
+      "/images/datasets/material_textures/material_textures_27256452_3.jpg",
     ],
     "Lighting": [
-      "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=400&fit=crop",
+      "/images/datasets/lighting_scenarios/lighting_scenarios_19946597_1.jpg",
+      "/images/datasets/lighting_scenarios/lighting_scenarios_10416279_2.jpg",
+      "/images/datasets/lighting_scenarios/lighting_scenarios_27256462_3.jpg",
+      "/images/datasets/lighting_scenarios/lighting_scenarios_3532440_1.jpg",
+      "/images/datasets/lighting_scenarios/lighting_scenarios_13037086_2.jpg",
+      "/images/datasets/lighting_scenarios/lighting_scenarios_27671544_3.jpg",
+      "/images/datasets/lighting_scenarios/lighting_scenarios_29436768_1.jpg",
+      "/images/datasets/lighting_scenarios/lighting_scenarios_3761178_2.jpg",
+      "/images/datasets/lighting_scenarios/lighting_scenarios_33336631_3.jpg",
     ],
     "Color": [
-      "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400&h=400&fit=crop",
+      "/images/datasets/material_textures/material_textures_18311092_1.jpg",
+      "/images/datasets/material_textures/material_textures_926705_2.jpg",
+      "/images/datasets/material_textures/material_textures_31407906_3.jpg",
+      "/images/datasets/material_textures/material_textures_2611817_1.jpg",
+      "/images/datasets/material_textures/material_textures_4062274_2.jpg",
     ],
     "Surfaces": [
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop",
+      "/images/datasets/material_textures/material_textures_29399429_3.jpg",
+      "/images/datasets/material_textures/material_textures_129733_1.jpg",
+      "/images/datasets/material_textures/material_textures_1561020_2.jpg",
+      "/images/datasets/material_textures/material_textures_129731_3.jpg",
+      "/images/datasets/material_textures/material_textures_5253420_2.jpg",
+      "/images/datasets/material_textures/material_textures_26736142_3.jpg",
     ],
   }
+  
+  return imageUrls[category as keyof typeof imageUrls] || imageUrls["3D Assets"]
+}
 
-  const urls = baseUrls[category as keyof typeof baseUrls] || baseUrls["3D Assets"]
+// 根据类别生成真实的图片URL数据
+const generateMockImageData = (category: string): FolderStructure[] => {
+  const urls = loadDatasetImages(category)
   
   return [
     {
@@ -100,7 +121,7 @@ const generateMockImageData = (category: string): FolderStructure[] => {
           name: "Batch_001",
           type: "folder" as const,
           path: "/training/batch_001",
-          children: urls.slice(0, 2).map((url, index) => ({
+          children: urls.slice(0, Math.ceil(urls.length / 2)).map((url, index) => ({
             name: `sample_${String(index + 1).padStart(3, '0')}.jpg`,
             type: "image" as const,
             path: `/training/batch_001/sample_${String(index + 1).padStart(3, '0')}.jpg`,
@@ -113,10 +134,10 @@ const generateMockImageData = (category: string): FolderStructure[] => {
           name: "Batch_002",
           type: "folder" as const,
           path: "/training/batch_002",
-          children: urls.slice(2, 4).map((url, index) => ({
-            name: `sample_${String(index + 3).padStart(3, '0')}.jpg`,
+          children: urls.slice(Math.ceil(urls.length / 2)).map((url, index) => ({
+            name: `sample_${String(index + Math.ceil(urls.length / 2) + 1).padStart(3, '0')}.jpg`,
             type: "image" as const,
-            path: `/training/batch_002/sample_${String(index + 3).padStart(3, '0')}.jpg`,
+            path: `/training/batch_002/sample_${String(index + Math.ceil(urls.length / 2) + 1).padStart(3, '0')}.jpg`,
             imageUrl: url,
             size: "2.1 MB",
             modifiedAt: "2024-01-19",

@@ -23,7 +23,7 @@ const tailoredMetricsSteps: NavigationStep[] = [
   {
     id: "eval-set-input-setup",
     name: "Eval Set Input Set Up",
-    href: "/eval-set-input-setup",
+    href: "/eval-set-input-setup-new",
     icon: Target,
     step: 3,
   },
